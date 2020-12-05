@@ -1,0 +1,25 @@
+
+.content-page {
+    background-color: #e8e8e8;
+    width: 100%;
+    height: auto;
+    bottom: 0px;
+    top: 0px;
+    left: 0;
+    position: absolute;
+}
+
+.content-main {
+    font-size: large;
+    position: absolute;
+    /* DEBUG
+    border: 1px solid blue;
+    */
+    margin-top: 10%;
+    margin-left: 25%;
+}
+
+.pre-url, .pre-url:hover {
+    color: inherit;
+    text-decoration:none;
+}

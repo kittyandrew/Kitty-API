@@ -1,0 +1,58 @@
+[{
+    "username": "sunday_lover",
+    "first_name": "Mari",
+    "last_name": "York",
+    "email": "mariyork1997@gmail.com",
+    "age": 23,
+    "active": true,
+    "picture": "https://randomuser.me/api/portraits/women/18.jpg"
+}, {
+    "username": "juliochapman50",
+    "first_name": "Douglas",
+    "last_name": "Mac",
+    "email": "juliothegiulio@gmail.com",
+    "age": 61,
+    "active": true,
+    "picture": "https://randomuser.me/api/portraits/men/13.jpg"
+}, {
+    "username": "organicwolf668",
+    "first_name": "Florence",
+    "last_name": "Mitchell",
+    "email": "florence.mitchell@protonmail.com",
+    "age": 33,
+    "active": false,
+    "picture": "https://randomuser.me/api/portraits/women/14.jpg"
+}, {
+    "username": "ticklishladybug",
+    "first_name": "Nella",
+    "last_name": "Koivisto",
+    "email": "ticklishladybug@protonmail.com",
+    "age": 27,
+    "active": true,
+    "picture": "https://randomuser.me/api/portraits/women/34.jpg"
+}, {
+    "username": "tinycat89",
+    "first_name": "Castelino",
+    "last_name": "Fernandes",
+    "email": "mrtinycat89@gmail.com",
+    "age": 46,
+    "active": true,
+    "picture": "https://randomuser.me/api/portraits/men/12.jpg"
+}, {
+    "username": "angrypanda253",
+    "first_name": "Ramon",
+    "last_name": "Mason",
+    "email": "angrypanda37@protonmail.com",
+    "age": 37,
+    "active": false,
+    "picture": "https://randomuser.me/api/portraits/men/83.jpg"
+}, {
+    "username": "singhzebra104",
+    "first_name": "Maia",
+    "last_name": "Singh",
+    "email": "singhzebra104@gmail.com",
+    "age": 32,
+    "active": true,
+    "picture": "https://randomuser.me/api/portraits/women/68.jpg"
+}]
+

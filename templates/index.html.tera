@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Kitty-API</title>
+    // Metadata
+    <meta charset="utf-8" />
+    // Stylesheet
+    <link rel="stylesheet" href="./static/style.css">
+  </head>
+  <body>
+    <div class="content-page">
+      <pre class="content-main">
+USAGE
+
+    Users:
+
+        GET <a href="/api/users" class="pre-url" target="_blank">/api/users</a>
+
+            retrieves all available users (without pagination).
+
+        GET <a href="/api/users/1" class="pre-url" target="_blank">/api/users/&lt;id&gt;</a>
+
+            retrieves the user with id `&lt;id&gt;` (if exists).
+      </pre>
+    </div>
+  </body>
+</html>

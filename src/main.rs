@@ -3,7 +3,11 @@
 #[macro_use] extern crate rocket_contrib;
 // Third Party
 use rocket_contrib::json::{Json, JsonValue};
+use rocket_contrib::templates::Template;
+use rocket_contrib::serve::StaticFiles;
 use rocket::State;
+// Standard
+use std::collections::HashMap;
 // Own code
 mod user;
 use user::{ID, User, UserMap, generate_users};
@@ -29,18 +33,9 @@ fn get_user_by_index(id: ID, map: State<UserMap>) -> Option<Json<User>> {
 // Home page
 
 #[get("/")]
-fn get_index() -> &'static str {
-    "
-    USAGE
-
-      GET /users
-
-          retrieves all available users (without pagination).
-
-      GET /users/<id>
-
-          retrieves the user with id `<id>` (if exists).
-    "
+fn get_index() -> Template {
+    let hashmap = HashMap::<String, String>::new();
+    Template::render("index", &hashmap)
 }
 
 // 404 page
@@ -56,7 +51,9 @@ fn not_found() -> JsonValue {
 fn main() {
     rocket::ignite()
 	.mount("/", routes![get_index])
-	.mount("/users", routes![get_all_users, get_user_by_index])
+	.mount("/api/users", routes![get_all_users, get_user_by_index])
+	.mount("/static", StaticFiles::from("static"))
+        .attach(Template::fairing())
         .register(catchers![not_found])
         .manage(generate_users())
 	.launch();
