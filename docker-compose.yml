@@ -1,0 +1,12 @@
+version: "3.7"
+services:
+  api:
+    container_name: public-testing-api
+    image: kitty-api
+    restart: always
+    build: .
+
+networks:
+  caddynet:
+    external:
+      name: caddynet
