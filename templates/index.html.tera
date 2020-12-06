@@ -4,8 +4,12 @@
     <title>Kitty-API</title>
     // Metadata
     <meta charset="utf-8" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/meta/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/meta/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/meta/favicon-16x16.png">
+    <link rel="manifest" href="/static/meta/site.webmanifest">
     // Stylesheet
-    <link rel="stylesheet" href="./static/style.css">
+    <link rel="stylesheet" href="/static/style.css">
   </head>
   <body>
     <div class="content-page">
@@ -16,11 +20,15 @@ USAGE
 
         GET <a href="/api/users" class="pre-url" target="_blank">/api/users</a>
 
-            retrieves all available users (without pagination).
+            retrieve all available users (without pagination).
 
         GET <a href="/api/users/1" class="pre-url" target="_blank">/api/users/&lt;id&gt;</a>
 
-            retrieves the user with id `&lt;id&gt;` (if exists).
+            retrieve a user with id `&lt;id&gt;` (if exists).
+
+        GET <a href="/api/users?page=0" class="pre-url" target="_blank">/api/users?page=&lt;page&gt;</a>
+
+            retrieve some amount of users and additional metadata.
       </pre>
     </div>
   </body>

@@ -24,6 +24,16 @@ pub struct User {
 // Storage for all users, instead of DB.
 pub type UserMap = Mutex<HashMap<ID, User>>;
 
+// page object for some amount of users
+#[derive(Serialize)]
+pub struct UserPage {
+    pub page: usize,
+    pub page_size: usize,
+    pub returned_size: usize,
+    pub next_exist: bool,
+    pub data: Vec<User>,
+}
+
 // Utils
 
 pub fn generate_users() -> UserMap {
