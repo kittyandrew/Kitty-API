@@ -80,16 +80,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "api"
-version = "0.1.0"
-dependencies = [
- "rocket",
- "rocket_contrib",
- "serde",
- "serde_json",
-]
-
-[[package]]
 name = "atty"
 version = "0.2.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -522,6 +512,16 @@ checksum = "7507624b29483431c0ba2d82aece8ca6cdba9382bff4ddd0f7490560c056098d"
 dependencies = [
  "winapi 0.2.8",
  "winapi-build",
+]
+
+[[package]]
+name = "kitty-api"
+version = "0.2.0"
+dependencies = [
+ "rocket",
+ "rocket_contrib",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

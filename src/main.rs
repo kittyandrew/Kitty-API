@@ -5,6 +5,7 @@
 use rocket_contrib::json::{Json, JsonValue};
 use rocket_contrib::templates::Template;
 use rocket_contrib::serve::StaticFiles;
+use rocket::response::NamedFile;
 use rocket::State;
 // Standard
 use std::collections::HashMap;
@@ -60,6 +61,11 @@ fn get_index() -> Template {
     Template::render("index", &hashmap)
 }
 
+#[get("/favicon.ico")]
+fn get_favicon() -> Option<NamedFile> {
+    NamedFile::open("static/meta/favicon.ico").ok()
+}
+
 // 404 page
 
 #[catch(404)]
@@ -72,7 +78,7 @@ fn not_found() -> JsonValue {
 
 fn main() {
     rocket::ignite()
-        .mount("/", routes![get_index])
+        .mount("/", routes![get_index, get_favicon])
         .mount("/api/users", routes![get_all_users, get_user_by_index, get_users_paginated])
         .mount("/static", StaticFiles::from("static"))
         .attach(Template::fairing())
