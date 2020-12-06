@@ -37,7 +37,7 @@ fn get_user_by_index(id: ID, map: State<UserMap>) -> Option<Json<User>> {
 fn get_users_paginated(page: usize, map: State<UserMap>) -> Json<UserPage> {
     let hashmap = map.lock().unwrap();
     let mut data = Vec::new();
-    for n in 1..PAGINATION_SIZE + 1 {
+    for n in 0..PAGINATION_SIZE {
         let id = PAGINATION_SIZE * page + n;
         hashmap.get(&id).map(|user| {
             data.push(user.clone())

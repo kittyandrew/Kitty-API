@@ -23,7 +23,7 @@ USAGE
 
             retrieve all available users (without pagination).
 
-        GET <a href="/api/users/1" class="pre-url" target="_blank">/api/users/&lt;id&gt;</a>
+        GET <a href="/api/users/0" class="pre-url" target="_blank">/api/users/&lt;id&gt;</a>
 
             retrieve a user with id `&lt;id&gt;` (if exists).
 

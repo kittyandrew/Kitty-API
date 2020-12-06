@@ -46,8 +46,8 @@ pub fn generate_users() -> UserMap {
         .expect("JSON must be a list of User(s)!");
 
     for i in 0..users_arr.len() {
-        users_arr[i].id = i + 1;
-        map.insert(i + 1, users_arr[i].clone());
+        users_arr[i].id = i;
+        map.insert(i, users_arr[i].clone());
     }
     Mutex::new(map)
 }
