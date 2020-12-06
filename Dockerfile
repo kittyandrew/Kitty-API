@@ -14,4 +14,4 @@ FROM scratch
 COPY --from=builder /usr/local/cargo/bin/kitty-api .
 COPY Rocket.toml .
 USER 1000
-CMD ["kitty-api"]
+CMD ["./kitty-api"]
