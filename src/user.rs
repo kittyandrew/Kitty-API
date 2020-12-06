@@ -40,14 +40,14 @@ pub fn generate_users() -> UserMap {
     let mut map = HashMap::<ID, User>::new();
     // Reading file with users
     let users_raw = fs::read_to_string("./data/users.json")
-	.expect("You must provide json file with a list of users!");
+        .expect("You must provide json file with a list of users!");
     // Parsing array of users
     let mut users_arr: Vec<User> = serde_json::from_str(&users_raw)
-	.expect("JSON must be a list of User(s)!");
+        .expect("JSON must be a list of User(s)!");
 
     for i in 0..users_arr.len() {
-	users_arr[i].id = i + 1;
-	map.insert(i + 1, users_arr[i].clone());
+        users_arr[i].id = i + 1;
+        map.insert(i + 1, users_arr[i].clone());
     }
     Mutex::new(map)
 }
