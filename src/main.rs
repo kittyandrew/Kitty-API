@@ -45,10 +45,10 @@ fn get_users_paginated(page: usize, map: State<UserMap>) -> Json<UserPage> {
     }
     Json(UserPage {
         page: page,
-        page_size: PAGINATION_SIZE,
-        returned_size: data.len(),
-	next_exist: data.len() < PAGINATION_SIZE,
-	data: data,
+        per_page: PAGINATION_SIZE,
+        items: data.len(),
+        next_exist: data.len() == PAGINATION_SIZE,
+        data: data,
     })
 }
 

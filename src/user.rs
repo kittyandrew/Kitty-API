@@ -28,8 +28,8 @@ pub type UserMap = Mutex<HashMap<ID, User>>;
 #[derive(Serialize)]
 pub struct UserPage {
     pub page: usize,
-    pub page_size: usize,
-    pub returned_size: usize,
+    pub per_page: usize,
+    pub items: usize,
     pub next_exist: bool,
     pub data: Vec<User>,
 }
