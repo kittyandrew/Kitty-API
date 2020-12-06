@@ -54,5 +54,53 @@
     "age": 32,
     "active": true,
     "picture": "https://randomuser.me/api/portraits/women/68.jpg"
+}, {
+    "username": "cutegreenswan",
+    "first_name": "Madison",
+    "last_name": "Kowalski",
+    "email": "cutegreenswan3@gmail.com",
+    "age": 39,
+    "active": true,
+    "picture": "https://randomuser.me/api/portraits/women/39.jpg"
+}, {
+    "username": "brownleopard78",
+    "first_name": "Strøm",
+    "last_name": "Porfyrveien",
+    "email": "brownleopard78@protonmail.com",
+    "age": 45,
+    "active": true,
+    "picture": "https://randomuser.me/api/portraits/women/28.jpg"
+}, {
+    "username": "flowarden10",
+    "first_name": "آدرینا",
+    "last_name": "سالاری",
+    "email": "adryn.slry@protonmail.com",
+    "age": 30,
+    "active": true,
+    "picture": "https://randomuser.me/api/portraits/women/54.jpg"
+}, {
+    "username": "harryelephant",
+    "first_name": "Harry",
+    "last_name": "Ramirez",
+    "email": "harryelephant@gmail.com",
+    "age": 37,
+    "active": false,
+    "picture": "https://randomuser.me/api/portraits/men/43.jpg"
+}, {
+    "username": "saddog333",
+    "first_name": "Lesa",
+    "last_name": "Young",
+    "email": "oxnardyoung@protonmail.com",
+    "age": 22,
+    "active": true,
+    "picture": "https://randomuser.me/api/portraits/women/63.jpg"
+}, {
+    "username": "groanenhurt",
+    "first_name": "Matthew",
+    "last_name": "George",
+    "email": "matthewlover42@gmail.com",
+    "age": 23,
+    "active": true,
+    "picture": "https://randomuser.me/api/portraits/men/81.jpg"
 }]
 
