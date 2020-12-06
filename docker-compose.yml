@@ -5,6 +5,20 @@ services:
     image: kitty-api
     restart: always
     build: .
+    networks:
+      - default
+      - caddynet
+
+  watchtower:
+    container_name: kitty-api-watchtower
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    #  - /root/.docker/config.json:/config.json
+    # Default to 5 mins (300s)
+    # command: --interval 30
+    depends_on:
+      - api
 
 networks:
   default:
