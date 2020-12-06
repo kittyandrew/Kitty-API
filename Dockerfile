@@ -7,7 +7,10 @@ RUN apt-get update && \
     rustup target add x86_64-unknown-linux-musl
 
 RUN USER=root cargo new kitty-api
-COPY . .
+# Copying config/build files
+COPY src src
+COPY Cargo.toml .
+COPY Cargo.lock .
 RUN cargo install --target x86_64-unknown-linux-musl --path .
 
 FROM scratch
