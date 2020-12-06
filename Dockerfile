@@ -1,8 +1,17 @@
-FROM rust:latest as builder
+FROM rustlang/rust:nightly-slim as builder
 WORKDIR /usr/src/app
+
+RUN apt-get update && \
+    apt-get dist-upgrade -y && \
+    apt-get install -y musl-tools && \
+    rustup target add x86_64-unknown-linux-musl
+
+RUN USER=root cargo new kitty-api
 COPY . .
-RUN cargo install --path .
+RUN cargo install --target x86_64-unknown-linux-musl --path .
 
 FROM scratch
-COPY --from=builder /usr/local/cargo/bin/api /usr/local/bin/api
-CMD ["api"]
+COPY --from=builder /usr/local/cargo/bin/kitty-api .
+COPY Rocket.toml .
+USER 1000
+CMD ["kitty-api"]

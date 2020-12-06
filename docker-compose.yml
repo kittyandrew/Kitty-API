@@ -7,6 +7,6 @@ services:
     build: .
 
 networks:
-  caddynet:
+  default:
     external:
       name: caddynet
