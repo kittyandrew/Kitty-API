@@ -2,20 +2,31 @@
 <html>
   <head>
     <title>Kitty-API</title>
-    // Metadata
+    <!-- Metadata -->
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="apple-touch-icon" sizes="180x180" href="/static/meta/apple-touch-icon.png">
     <link rel="icon" type="image/x-icon" href="/static/meta/favicon.ico">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/meta/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/static/meta/favicon-16x16.png">
     <link rel="manifest" href="/static/meta/site.webmanifest">
-    // Stylesheet
+    <!-- Stylesheet -->
     <link rel="stylesheet" href="/static/style.css">
   </head>
   <body>
     <div class="content-page">
       <pre class="content-main">
 USAGE
+
+    Global parameters:
+
+        &lt;delay&gt; - append integer in range 1-10 (min-max) to any
+                  API request, so server will wait for &lt;delay&gt;
+                  seconds before responding.
+
+                  Examples:
+                      - GET <a href="/api/users?delay=1" class="pre-url" target="_blank">/api/users?delay=1</a>
+                      - GET <a href="/api/users?page=0&delay=5" class="pre-url" target="_blank">/api/users?page=0&delay=5</a>
 
     Users:
 
@@ -30,6 +41,53 @@ USAGE
         GET <a href="/api/users?page=0" class="pre-url" target="_blank">/api/users?page=&lt;page&gt;</a>
 
             retrieve some amount of users and additional metadata.
+
+    Accounts:
+        <!--POST <a href="/api/accounts/register" class="pre-url" target="_blank">/api/accounts/register</a>-->
+        POST /api/accounts/register
+
+            REQUEST
+                <code>{
+                    "email": String,
+                    "password": String,
+                }</code>
+
+            RESPONSE
+                <b style="color: green;">200</b>:
+                    <code>{
+                        "message": "Registration success!",
+                        "session": &lt;String, 24&gt;,
+                        "creation_date": &lt;Current UTC Time&gt;
+                    }</code>
+                <b style="color: red">401</b>:
+                    <code>{ "message": "Email must not be empty!" }</code>
+                    <code>{ "message": "User is already registered!" }</code>
+                    <code>{ "message": "Password must not be empty!" }</code>
+                    <code>{ "message": "Password is too short! Minimum length is 8 symbols." }</code>
+                    <code>{ "message": "Password is too long! Please use more practical length." }</code>
+
+        <!--POST <a href="/api/accounts/login" class="pre-url" target="_blank">/api/accounts/login</a>-->
+        POST /api/accounts/login
+
+            REQUEST
+                <code>{
+                    "email": String,
+                    "password": String,
+                }</code>
+
+            RESPONSE
+                <b style="color: green;">200</b>:
+                    <code>{
+                        "message": "Login success!",
+                        "session": &lt;String, 24&gt;,
+                        "creation_date": &lt;Current UTC Time&gt;
+                    }</code>
+                <b style="color: red">401</b>:
+                    <code>{ "message": "Email must not be empty!" }</code>
+                    <code>{ "message": "Account with such email does not exist!" }</code>
+                    <code>{ "message": "Password must not be empty!" }</code>
+                    <code>{ "message": "Password was incorrect!" }</code>
+
       </pre>
     </div>
   </body>

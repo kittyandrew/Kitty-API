@@ -1,25 +1,33 @@
 
+body {
+    background-color: #e8e8e8;
+}
+
+code {
+    color: hotpink;
+}
+
 .content-page {
     background-color: #e8e8e8;
-    width: 100%;
-    height: auto;
-    bottom: 0px;
-    top: 0px;
-    left: 0;
-    position: absolute;
 }
 
 .content-main {
+    margin: 32px auto;
+    max-width: 800px;
+    font-family: monospace;
     font-size: large;
-    position: absolute;
     /* DEBUG
     border: 1px solid blue;
     */
-    margin-top: 10%;
-    margin-left: 25%;
 }
 
 .pre-url, .pre-url:hover {
     color: inherit;
     text-decoration:none;
+}
+
+@media screen and (max-width: 616px) {
+    body {
+        margin: 16px;
+    }
 }
