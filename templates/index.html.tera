@@ -48,10 +48,11 @@ USAGE
         POST /api/accounts/register
 
             REQUEST
-                <code>{
-                    "email": String,
-                    "password": String,
-                }</code>
+                json:
+                    <code>{
+                        "email": String,
+                        "password": String,
+                    }</code>
 
             RESPONSE
                 <b style="color: green;">200</b>:
@@ -71,10 +72,11 @@ USAGE
         POST /api/accounts/login
 
             REQUEST
-                <code>{
-                    "email": String,
-                    "password": String,
-                }</code>
+                json:
+                    <code>{
+                        "email": String,
+                        "password": String,
+                    }</code>
 
             RESPONSE
                 <b style="color: green;">200</b>:
