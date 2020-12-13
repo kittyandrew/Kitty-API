@@ -21,9 +21,19 @@ code {
     */
 }
 
+.inline {
+  display: inline;
+  padding-left: 4px;
+}
+
 .pre-url, .pre-url:hover {
     color: inherit;
+    border: none;
+    background: none;
     text-decoration:none;
+    cursor: pointer;
+    font-family: monospace;
+    font-size: large;
 }
 
 @media screen and (max-width: 616px) {

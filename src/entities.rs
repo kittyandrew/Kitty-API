@@ -8,6 +8,8 @@ use serde::{Serialize, Deserialize};
 use rocket_contrib::json::Json;
 use chrono::{DateTime, Utc};
 use rand::{thread_rng, Rng};
+// use rocket::request::Form;
+// use either::Either;
 use rocket::State;
 // The type to represent id of a user.
 pub type ID = usize;

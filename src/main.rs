@@ -12,6 +12,7 @@ use blake3::hash;
 // TODO: Look into using "Private Cookies" by Rocket
 // use rocket::http::CookieJar;
 // use rocket::request::Form;
+// use either::Either;
 use rocket::State;
 // Standard
 use std::collections::HashMap;
@@ -74,8 +75,8 @@ fn get_users_paginated(page: usize, map: State<UserMap>) -> Json<UserPage> {
 
 // Register - Login - Get page with session
 
-// Handling basic POST request
-#[post("/register", data = "<data>")]
+// Handling basic POST request with JSON data
+#[post("/register", format = "application/json", data = "<data>")]
 fn account_register(data: Json<Data>, login_map: State<LoginMap>, login_cache: State<LoginCache>) -> AnyResp {
     // Handle early returns
     if let Some(error) = reg_data_has_error(&data, &login_cache) {

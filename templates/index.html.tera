@@ -25,8 +25,9 @@ USAGE
                   seconds before responding.
 
                   Examples:
-                      - GET <a href="/api/users?delay=1" class="pre-url" target="_blank">/api/users?delay=1</a>
-                      - GET <a href="/api/users?page=0&delay=5" class="pre-url" target="_blank">/api/users?page=0&delay=5</a>
+                      - GET   <a href="/api/users/8?delay=1" class="pre-url" target="_blank">/api/users/8?delay=1</a>
+                      - GET   <a href="/api/users?page=0&delay=5" class="pre-url" target="_blank">/api/users?page=0&delay=5</a>
+                      - POST  /api/accounts/register?delay=3 <!-- - POST <form method="post" action="/api/accounts/register?delay=3" class="inline"><input type="hidden" name="email" value="test@example.com"><input type="hidden" name="password" value="TEST_PASS"><button type="submit" class="pre-url">/api/accounts/register?delay=3</button></form> -->
 
     Users:
 

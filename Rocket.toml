@@ -1,6 +1,7 @@
 [global]
+address = "0.0.0.0"
+# default port is 8000
 template_dir = "templates/"
 
-[production]
-address = "0.0.0.0"
+[release]
 port = 8080
