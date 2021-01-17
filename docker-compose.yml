@@ -5,6 +5,8 @@ services:
     image: kitty-api
     restart: always
     build: .
+    environment:
+      - TOKEN
 
 networks:
   default:
