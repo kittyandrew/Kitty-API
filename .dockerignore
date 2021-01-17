@@ -5,3 +5,5 @@ deploy.sh
 /.git/
 LICENSE
 README.md
+.env
+.env.sample
