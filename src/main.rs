@@ -6,8 +6,10 @@ use rocket::tokio::time::{delay_for, Duration};
 use rocket_contrib::json::{Json, JsonValue};
 use rocket_contrib::templates::Template;
 use rocket_contrib::serve::StaticFiles;
+use rocket::http::uri::Origin;
 use rocket::fairing::AdHoc;
 use chrono::prelude::Utc;
+use rocket::http::Method;
 use blake3::hash;
 // TODO: Look into using "Private Cookies" by Rocket
 // use rocket::http::CookieJar;
@@ -16,6 +18,7 @@ use blake3::hash;
 use rocket::State;
 // Standard
 use std::collections::HashMap;
+use std::env;
 // Own code
 mod entities;
 use entities::{
@@ -125,6 +128,17 @@ fn account_login(data: Json<Data>, login_map: State<LoginMap>, login_cache: Stat
     }
 }
 
+// Catch "Not Authorized"
+
+// This is AWFUL. MY GOD rocket WHY
+#[get("/")]
+fn catch_not_auth() -> JsonValue {
+    json!({
+        "status": "error",
+        "reason": "Access denied! Authorization token is wrong or missing."
+    })
+}
+
 // 404 page
 
 #[catch(404)]
@@ -143,6 +157,7 @@ fn rocket() -> rocket::Rocket {
         // API routes
         .mount("/api/users", routes![get_all_users, get_user_by_index, get_users_paginated])
         .mount("/api/accounts", routes![account_register, account_login])
+        .mount("/api/not_authorized", routes![catch_not_auth])
         // Serving static files (stylesheet, pictures etc)
         .mount("/static", StaticFiles::from("static"))
         // Attachements (Middleware)
@@ -166,6 +181,28 @@ fn rocket() -> rocket::Rocket {
                 };
             })
         }))
+        // This is AWFUL. MY GOD rocket WHY
+        .attach(AdHoc::on_request("API Token handler", |req, _| {
+            Box::pin(async move {
+                // only /api path matters here
+                if !req.uri().path().starts_with("/api") { return }
+                let bad_uri = Origin::parse("/api/not_authorized").unwrap();
+                match req.headers().get_one("Token") {
+                    Some(val) => match val {
+                        val if val.to_string() == env::var("TOKEN").unwrap() => return,
+                        _val => {
+                            req.set_uri(bad_uri);
+                            req.set_method(Method::Get);
+                        },
+                    },
+                    None => {
+                        req.set_uri(bad_uri);
+                        req.set_method(Method::Get);
+                    },
+                };
+            })
+        }))
+
         // All-catchers
         .register(catchers![not_found])
         // "local" vars
