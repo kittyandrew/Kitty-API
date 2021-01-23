@@ -61,8 +61,7 @@ fn get_users_paginated(page: usize, map: State<UserMap>) -> JsonValue {
     for n in 0..PAGINATION_SIZE {
         let id = PAGINATION_SIZE * page + n;
         hashmap.get(&id).map(|user| {
-            // @Speed: try to avoid .clone()
-            data.push(user.clone())
+            data.push(user)
         });
     }
     json!({
@@ -89,6 +88,7 @@ fn account_register(data: Json<Data>, login_map: State<LoginMap>, login_cache: S
     // create Profile with (email, password hash, session)
     let pwd = hash(data.password.as_bytes()).to_hex().to_string();
     let session = new_session(24);
+    // @Improve: decrease complexity by removing all .clone()
     login_map.lock().unwrap().insert(pwd.clone(), Profile {
         login: data.email.clone(),
         password: pwd.clone(),
