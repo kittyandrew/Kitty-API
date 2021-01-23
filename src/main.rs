@@ -50,15 +50,14 @@ fn get_all_users(map: State<UserMap>) -> AnyResp {
 }
 
 #[get("/<id>")]
-fn get_user_by_index(id: ID, map: State<UserMap>) -> Option<Json<User>> {
-    let hashmap = map.lock().unwrap();
-    hashmap.get(&id).map(|user| {
-        Json(user.clone())
-    })
+fn get_user_by_index(id: ID, map: State<UserMap>) -> JsonValue {
+    map.lock().unwrap().get(&id).map(|user| {
+        json!(user)
+    }).expect("Failed to create json!")
 }
 
 #[get("/?<page>")]
-fn get_users_paginated(page: usize, map: State<UserMap>) -> Json<UserPage> {
+fn get_users_paginated(page: usize, map: State<UserMap>) -> JsonValue {
     let hashmap = map.lock().unwrap();
     let mut data = Vec::new();
     for n in 0..PAGINATION_SIZE {
@@ -67,7 +66,7 @@ fn get_users_paginated(page: usize, map: State<UserMap>) -> Json<UserPage> {
             data.push(user.clone())
         });
     }
-    Json(UserPage {
+    json!(UserPage {
         page: page,
         per_page: PAGINATION_SIZE,
         items: data.len(),
