@@ -3,10 +3,9 @@ use std::collections::{HashMap, HashSet};
 use std::sync::Mutex;
 use std::fs;
 // Third Party
+use rocket_contrib::json::{Json, JsonValue};
 use rand::distributions::Alphanumeric;
 use serde::{Serialize, Deserialize};
-use rocket_contrib::json::Json;
-use chrono::{DateTime, Utc};
 use rand::{thread_rng, Rng};
 // use rocket::request::Form;
 // use either::Either;
@@ -41,73 +40,42 @@ pub type LoginMap = Mutex<HashMap<String, Profile>>;
 // Cache for all existing emails
 pub type LoginCache = Mutex<HashSet<String>>;
 
-// page object for some amount of users
-#[derive(Serialize)]
-pub struct UserPage {
-    pub page: usize,
-    pub per_page: usize,
-    pub items: usize,
-    pub next_exist: bool,
-    pub data: Vec<User>,
-}
-
 #[derive(Deserialize)]
 pub struct Data {
     pub email: String,
     pub password: String,
 }
 
-#[derive(Serialize)]
-pub struct GoodRegResp {
-    pub message: String,
-    pub session: String,
-    pub creation_date: DateTime<Utc>,
-}
-
-#[derive(Serialize, Responder)]
-pub struct BadRegResp {
-    pub message: String,
-}
-
-#[derive(Responder)]
-pub enum AnyResp {
-    Good(Json<GoodRegResp>),
-    GoodAll(Json<Vec<User>>),
-    #[response(status = 401, content_type = "json")]
-    Bad(Json<BadRegResp>),
-}
-
 // Utils
 
-pub fn reg_data_has_error(data: &Json<Data>, login_cache: &State<LoginCache>) -> Option<AnyResp> {
-    let cache = login_cache.lock().unwrap();
+pub fn reg_data_has_error(data: &Json<Data>, login_cache: &State<LoginCache>) -> Option<JsonValue> {
     match data {
         // Handle empty email
-        data if data.email.is_empty() => return Some(AnyResp::Bad(Json(BadRegResp { message: "Email must not be empty!".to_string() }))),
+        data if data.email.is_empty() => return Some(json!({ "message": "Email must not be empty!" })),
         // Handle existing account
-        data if cache.contains(&data.email) => return Some(AnyResp::Bad(Json(BadRegResp { message: "User is already registered!".to_string() }))),
+        data if login_cache.lock().unwrap().contains(&data.email) => return Some(json!({ "message": "User is already registered!" })),
         // Handle empty password
-        data if data.password.is_empty() => return Some(AnyResp::Bad(Json(BadRegResp { message: "Password must not be empty!".to_string() }))),
+        data if data.password.is_empty() => return Some(json!({ "message": "Password must not be empty!" })),
+        // TODO: change function to take arguments for min/max length
         // Handle short password
-        data if data.password.len() < 8 => return Some(AnyResp::Bad(Json(BadRegResp { message: "Password is too short! Minimum length is 8 symbols.".to_string() }))),
+        data if data.password.len() < 8 => return Some(json!({ "message": "Password is too short! Minimum length is 8 symbols." })),
         // Handle too long password (in case of DDOS)
-        data if data.password.len() > 128 => return Some(AnyResp::Bad(Json(BadRegResp { message: "Password is too long! Please use more practical length.".to_string() }))),
+        data if data.password.len() > 128 => return Some(json!({ "message": "Password is too long! Please use more practical length." })),
         _ => None,
     }
 }
 
-pub fn login_data_has_error(data: &Json<Data>, login_cache: &State<LoginCache>) -> Option<AnyResp> {
-    let cache = login_cache.lock().unwrap();
+pub fn login_data_has_error(data: &Json<Data>, login_cache: &State<LoginCache>) -> Option<JsonValue> {
     match data {
         // Handle empty email
-        data if data.email.is_empty() => return Some(AnyResp::Bad(Json(BadRegResp { message: "Email must not be empty!".to_string() }))),
+        data if data.email.is_empty() => return Some(json!({ "message": "Email must not be empty!" })),
         // Handle existing account
-        data if !cache.contains(&data.email) => return Some(AnyResp::Bad(Json(BadRegResp { message: "Account with such email does not exist!".to_string() }))),
+        data if !login_cache.lock().unwrap().contains(&data.email) => return Some(json!({ "message": "Account with such email does not exist!" })),
         // Handle empty password
-        data if data.password.is_empty() => return Some(AnyResp::Bad(Json(BadRegResp { message: "Password must not be empty!".to_string() }))),
+        data if data.password.is_empty() => return Some(json!({ "message": "Password must not be empty!" })),
         // Handle invalid entries for password
         // Note: while handling those entries - just say they are incorrect (same error as non-existent account)
-        data if (data.password.len() < 8) | (data.password.len() > 128) => return Some(AnyResp::Bad(Json(BadRegResp { message: "Password was incorrect!".to_string() }))),
+        data if (data.password.len() < 8) | (data.password.len() > 128) => return Some(json!({ "message": "Password was incorrect!" })),
         _ => None,
     }
 }

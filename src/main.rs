@@ -22,8 +22,7 @@ use std::env;
 // Own code
 mod entities;
 use entities::{
-    ID, User, UserMap, LoginMap, LoginCache, UserPage, Data, Profile,
-    GoodRegResp, BadRegResp, AnyResp,
+    ID, User, UserMap, LoginMap, LoginCache, Data, Profile,
     generate_users, new_session, get_login_storage, get_login_cache,
     reg_data_has_error, login_data_has_error
 };
@@ -66,12 +65,12 @@ fn get_users_paginated(page: usize, map: State<UserMap>) -> JsonValue {
             data.push(user.clone())
         });
     }
-    json!(UserPage {
-        page: page,
-        per_page: PAGINATION_SIZE,
-        items: data.len(),
-        next_exist: data.len() == PAGINATION_SIZE,
-        data: data,
+    json!({
+        "page": page,
+        "per_page": PAGINATION_SIZE,
+        "items": data.len(),
+        "next_exist": data.len() == PAGINATION_SIZE,
+        "data": data,
     })
 }
 
@@ -79,33 +78,32 @@ fn get_users_paginated(page: usize, map: State<UserMap>) -> JsonValue {
 
 // Handling basic POST request with JSON data
 #[post("/register", format = "application/json", data = "<data>")]
-fn account_register(data: Json<Data>, login_map: State<LoginMap>, login_cache: State<LoginCache>) -> AnyResp {
+fn account_register(data: Json<Data>, login_map: State<LoginMap>, login_cache: State<LoginCache>) -> JsonValue {
     // Handle early returns
     if let Some(error) = reg_data_has_error(&data, &login_cache) {
         return error
-    } else {
-        let mut cache = login_cache.lock().unwrap();
-        // add to cache
-        cache.insert(data.email.clone());
-        // create Profile with (email, password hash, session)
-        let mut logins = login_map.lock().unwrap();
-        let pwd = hash(data.password.as_bytes()).to_hex().to_string();
-        let session = new_session(24);
-        logins.insert(pwd.clone(), Profile {
-            login: data.email.clone(),
-            password: pwd.clone(),
-            session: session.clone(),
-        });
-        return AnyResp::Good(Json(GoodRegResp {
-            message: "Registration success!".to_string(),
-            session: session,
-            creation_date: Utc::now(),
-        }))
     }
+
+    // add to cache
+    login_cache.lock().unwrap().insert(data.email.clone());
+    // create Profile with (email, password hash, session)
+    let pwd = hash(data.password.as_bytes()).to_hex().to_string();
+    let session = new_session(24);
+    login_map.lock().unwrap().insert(pwd.clone(), Profile {
+        login: data.email.clone(),
+        password: pwd.clone(),
+        session: session.clone(),
+    });
+
+    json!({
+        "message": "Registration success!",
+        "session": session,
+        "creation_date": Utc::now(),
+    })
 }
 
 #[post("/login", data = "<data>")]
-fn account_login(data: Json<Data>, login_map: State<LoginMap>, login_cache: State<LoginCache>) -> AnyResp {
+fn account_login(data: Json<Data>, login_map: State<LoginMap>, login_cache: State<LoginCache>) -> JsonValue {
     if let Some(error) = login_data_has_error(&data, &login_cache) {
         return error
     } else {
@@ -116,14 +114,15 @@ fn account_login(data: Json<Data>, login_map: State<LoginMap>, login_cache: Stat
         // Get value or return early with error (password doesn't match)
         let profile = match profiles.get_mut(&hash(data.password.as_bytes()).to_hex().to_string()) {
             Some(val) => val,
-            None => return AnyResp::Bad(Json(BadRegResp { message: "Password was incorrect!".to_string() })),
+            None => return json!({ "message": "Password was incorrect!" }),
         };
         profile.session = session.clone();
-        return AnyResp::Good(Json(GoodRegResp {
-            message: "Login success!".to_string(),
-            session: session,
-            creation_date: Utc::now(),
-        }))
+
+        json!({
+            "message": "Login success!",
+            "session": session,
+            "creation_date": Utc::now(),
+        })
     }
 }
 
