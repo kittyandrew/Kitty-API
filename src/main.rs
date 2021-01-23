@@ -125,7 +125,7 @@ fn account_login(data: Json<Data>, login_map: State<LoginMap>, login_cache: Stat
 
 // Catch Errors
 
-// This is AWFUL. MY GOD rocket WHY
+// This is AWFUL. MY GOD Rocket WHY
 #[get("/")]
 fn catch_not_auth() -> JsonValue {
     json!({
@@ -162,6 +162,7 @@ fn rocket() -> rocket::Rocket {
             Box::pin(async move {
                 // path for delay must be /api, otherwise people will break something
                 if !req.uri().path().starts_with("/api") { return }
+
                 // unpack <delay>, skipping if at any point values are illegal or empty
                 match req.get_query_value("delay") {
                     Some(val) => match val {
@@ -178,7 +179,6 @@ fn rocket() -> rocket::Rocket {
             })
         }))
         // Catching the TOKEN auth header
-        // This is AWFUL. MY GOD rocket WHY
         .attach(AdHoc::on_request("API Token handler", |req, _| {
             Box::pin(async move {
                 // only /api path matters here
@@ -196,11 +196,13 @@ fn rocket() -> rocket::Rocket {
                 match req.headers().get_one("Token") {
                     Some(val) => match val {
                         val if val.to_string() == token => return,
+                        // This is AWFUL. MY GOD Rocket WHY
                         _val => {
                             req.set_uri(bad_uri);
                             req.set_method(Method::Get);
                         },
                     },
+                    // This is AWFUL. MY GOD Rocket WHY
                     None => {
                         req.set_uri(bad_uri);
                         req.set_method(Method::Get);
