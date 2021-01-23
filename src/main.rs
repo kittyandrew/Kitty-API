@@ -128,7 +128,7 @@ fn account_login(data: Json<Data>, login_map: State<LoginMap>, login_cache: Stat
     }
 }
 
-// Catch "Not Authorized"
+// Catch Errors
 
 // This is AWFUL. MY GOD rocket WHY
 #[get("/")]
@@ -157,6 +157,7 @@ fn rocket() -> rocket::Rocket {
         // API routes
         .mount("/api/users", routes![get_all_users, get_user_by_index, get_users_paginated])
         .mount("/api/accounts", routes![account_register, account_login])
+        // Error route for TOKEN header handler
         .mount("/api/not_authorized", routes![catch_not_auth])
         // Serving static files (stylesheet, pictures etc)
         .mount("/static", StaticFiles::from("static"))
@@ -181,15 +182,25 @@ fn rocket() -> rocket::Rocket {
                 };
             })
         }))
+        // Catching the TOKEN auth header
         // This is AWFUL. MY GOD rocket WHY
         .attach(AdHoc::on_request("API Token handler", |req, _| {
             Box::pin(async move {
                 // only /api path matters here
                 if !req.uri().path().starts_with("/api") { return }
+
+                // handle empty token -> we don't care if you supplied header then
+                let token: String;
+                match env::var("TOKEN") {
+                    Ok(val) => token = val,
+                    // early return
+                    Err(_) => return,
+                }
+
                 let bad_uri = Origin::parse("/api/not_authorized").unwrap();
                 match req.headers().get_one("Token") {
                     Some(val) => match val {
-                        val if val.to_string() == env::var("TOKEN").unwrap() => return,
+                        val if val.to_string() == token => return,
                         _val => {
                             req.set_uri(bad_uri);
                             req.set_method(Method::Get);
