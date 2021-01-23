@@ -101,7 +101,7 @@ pub fn generate_users() -> UserMap {
         users_arr[i].id = i;
         map.insert(i, users_arr[i].clone());
     }
-    Mutex::new(map)
+    UserMap::new(map)
 }
 
 pub fn get_login_storage() -> LoginMap {
@@ -121,7 +121,7 @@ pub fn new_session(n: usize) -> String {
 pub fn get_context() -> Context {
     Context {
         page_size: match env::var("PAGE_SIZE") {
-            Ok(val) => match val.parse::<ID>() {
+            Ok(val) => match val.parse::<usize>() {
                 Ok(num) => num,
                 // default value
                 Err(_) => 5,
