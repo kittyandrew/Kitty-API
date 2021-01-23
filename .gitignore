@@ -1,3 +1,4 @@
 /target
 cats.json
 .env
+*.swp

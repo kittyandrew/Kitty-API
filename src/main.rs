@@ -44,9 +44,8 @@ fn get_index() -> Template {
 // Users section
 
 #[get("/")]
-fn get_all_users(map: State<UserMap>) -> AnyResp {
-    let result = Json(map.lock().unwrap().values().cloned().collect());
-    return AnyResp::GoodAll(result)
+fn get_all_users(map: State<UserMap>) -> JsonValue {
+    json!(map.lock().unwrap().values().collect::<Vec<&User>>())
 }
 
 #[get("/<id>")]
@@ -63,6 +62,7 @@ fn get_users_paginated(page: usize, map: State<UserMap>) -> JsonValue {
     for n in 0..PAGINATION_SIZE {
         let id = PAGINATION_SIZE * page + n;
         hashmap.get(&id).map(|user| {
+            // @Speed: try to avoid .clone()
             data.push(user.clone())
         });
     }
