@@ -22,13 +22,10 @@ use std::env;
 // Own code
 mod entities;
 use entities::{
-    ID, User, UserMap, LoginMap, LoginCache, Data, Profile,
+    ID, User, UserMap, LoginMap, LoginCache, Data, Profile, Context,
     generate_users, new_session, get_login_storage, get_login_cache,
-    reg_data_has_error, login_data_has_error
+    get_context, reg_data_has_error, login_data_has_error
 };
-
-// Config
-static PAGINATION_SIZE: ID = 5;
 
 // Home page
 
@@ -55,20 +52,20 @@ fn get_user_by_index(id: ID, map: State<UserMap>) -> JsonValue {
 }
 
 #[get("/?<page>")]
-fn get_users_paginated(page: usize, map: State<UserMap>) -> JsonValue {
+fn get_users_paginated(page: usize, map: State<UserMap>, context: State<Context>) -> JsonValue {
     let hashmap = map.lock().unwrap();
     let mut data = Vec::new();
-    for n in 0..PAGINATION_SIZE {
-        let id = PAGINATION_SIZE * page + n;
+    for n in 0..context.page_size {
+        let id = context.page_size * page + n;
         hashmap.get(&id).map(|user| {
             data.push(user)
         });
     }
     json!({
         "page": page,
-        "per_page": PAGINATION_SIZE,
+        "per_page": context.page_size,
         "items": data.len(),
-        "next_exist": data.len() == PAGINATION_SIZE,
+        "next_exist": data.len() == context.page_size,
         "data": data,
     })
 }
@@ -218,4 +215,6 @@ fn rocket() -> rocket::Rocket {
         .manage(generate_users())
         .manage(get_login_storage())
         .manage(get_login_cache())
+        // Config
+        .manage(get_context())
 }

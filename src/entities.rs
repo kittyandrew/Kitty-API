@@ -1,6 +1,7 @@
 // Standard
 use std::collections::{HashMap, HashSet};
 use std::sync::Mutex;
+use std::env;
 use std::fs;
 // Third Party
 use rocket_contrib::json::{Json, JsonValue};
@@ -10,8 +11,17 @@ use rand::{thread_rng, Rng};
 // use rocket::request::Form;
 // use either::Either;
 use rocket::State;
+
+
 // The type to represent id of a user.
 pub type ID = usize;
+// Storage for all users, instead of DB.
+pub type UserMap = Mutex<HashMap<ID, User>>;
+// Storage for all profiles
+pub type LoginMap = Mutex<HashMap<String, Profile>>;
+// Cache for all existing emails
+pub type LoginCache = Mutex<HashSet<String>>;
+
 
 // @FeatureReq: make "Email", "Url" types so we can type check for them (?)
 #[derive(Serialize, Deserialize, Clone)]
@@ -33,17 +43,15 @@ pub struct Profile {
     pub session: String,
 }
 
-// Storage for all users, instead of DB.
-pub type UserMap = Mutex<HashMap<ID, User>>;
-// Storage for all profiles
-pub type LoginMap = Mutex<HashMap<String, Profile>>;
-// Cache for all existing emails
-pub type LoginCache = Mutex<HashSet<String>>;
-
 #[derive(Deserialize)]
 pub struct Data {
     pub email: String,
     pub password: String,
+}
+
+// Context container, useful for configurations
+pub struct Context {
+    pub page_size: usize,
 }
 
 // Utils
@@ -109,3 +117,18 @@ pub fn new_session(n: usize) -> String {
                 .take(n)
                 .collect()
 }
+
+pub fn get_context() -> Context {
+    Context {
+        page_size: match env::var("PAGE_SIZE") {
+            Ok(val) => match val.parse::<ID>() {
+                Ok(num) => num,
+                // default value
+                Err(_) => 5,
+            },
+            // default value
+            Err(_) => 5,
+        },
+    }
+}
+
