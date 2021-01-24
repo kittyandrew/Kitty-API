@@ -59,16 +59,32 @@ pub struct Context {
 pub fn reg_data_has_error(data: &Json<Data>, login_cache: &State<LoginCache>) -> Option<JsonValue> {
     match data {
         // Handle empty email
-        data if data.email.is_empty() => return Some(json!({ "message": "Email must not be empty!" })),
-        // Handle existing account
-        data if login_cache.lock().unwrap().contains(&data.email) => return Some(json!({ "message": "User is already registered!" })),
+        data if data.email.is_empty() => return Some(json!({
+            "msg_code": 40004,
+            "message": "Email must not be empty!"
+        })),
         // Handle empty password
-        data if data.password.is_empty() => return Some(json!({ "message": "Password must not be empty!" })),
+        data if data.password.is_empty() => return Some(json!({
+            "msg_code": 40005,
+            "message": "Password must not be empty!"
+        })),
         // TODO: change function to take arguments for min/max length
         // Handle short password
-        data if data.password.len() < 8 => return Some(json!({ "message": "Password is too short! Minimum length is 8 symbols." })),
-        // Handle too long password (in case of DDOS)
-        data if data.password.len() > 128 => return Some(json!({ "message": "Password is too long! Please use more practical length." })),
+        data if data.password.len() < 8 => return Some(json!({
+            "msg_code": 40006,
+            "message": "Password is too short! Minimum length is 8 symbols."
+        })),
+        // Handle too long password (avoid DDOS)
+        data if data.password.len() > 128 => return Some(json!({
+            "msg_code": 40007,
+            "message": "Password is too long! Please use more practical length."
+        })),
+        // Handle existing account
+        data if login_cache.lock().unwrap().contains(&data.email) => return Some(json!({
+            "msg_code": 40008,
+            "message": "User is already registered!"
+        })),
+        // No err
         _ => None,
     }
 }
@@ -76,14 +92,32 @@ pub fn reg_data_has_error(data: &Json<Data>, login_cache: &State<LoginCache>) ->
 pub fn login_data_has_error(data: &Json<Data>, login_cache: &State<LoginCache>) -> Option<JsonValue> {
     match data {
         // Handle empty email
-        data if data.email.is_empty() => return Some(json!({ "message": "Email must not be empty!" })),
-        // Handle existing account
-        data if !login_cache.lock().unwrap().contains(&data.email) => return Some(json!({ "message": "Account with such email does not exist!" })),
+        data if data.email.is_empty() => return Some(json!({
+            "msg_code": 40004,
+            "message": "Email must not be empty!"
+        })),
         // Handle empty password
-        data if data.password.is_empty() => return Some(json!({ "message": "Password must not be empty!" })),
-        // Handle invalid entries for password
-        // Note: while handling those entries - just say they are incorrect (same error as non-existent account)
-        data if (data.password.len() < 8) | (data.password.len() > 128) => return Some(json!({ "message": "Password was incorrect!" })),
+        data if data.password.is_empty() => return Some(json!({
+            "msg_code": 40005,
+            "message": "Password must not be empty!"
+        })),
+        // TODO: change function to take arguments for min/max length
+        // Handle short password
+        data if data.password.len() < 8 => return Some(json!({
+            "msg_code": 40006,
+            "message": "Password is too short! Minimum length is 8 symbols."
+        })),
+        // Handle too long password (avoid DDOS)
+        data if data.password.len() > 128 => return Some(json!({
+            "msg_code": 40007,
+            "message": "Password is too long! Please use more practical length."
+        })),
+        // Handle existing account
+        data if !login_cache.lock().unwrap().contains(&data.email) => return Some(json!({
+            "msg_code": 40009,
+            "message": "Account with such email does not exist!"
+        })),
+        // No err
         _ => None,
     }
 }

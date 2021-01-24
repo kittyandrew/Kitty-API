@@ -41,13 +41,16 @@ fn get_index() -> Template {
 
 #[get("/")]
 fn get_all_users(map: State<UserMap>) -> JsonValue {
-    json!(map.lock().unwrap().values().collect::<Vec<&User>>())
+    json!({
+        "msg_code": 20000,
+        "data": map.lock().unwrap().values().collect::<Vec<&User>>()
+    })
 }
 
 #[delete("/")]
 fn remove_all_users(map: State<UserMap>) -> JsonValue {
     map.lock().unwrap().clear();
-    json!({ "message": "All users were removed!" })
+    json!({ "msg_code": 20001, "message": "All users were removed!" })
 }
 
 #[post("/", format = "application/json", data = "<user>")]
@@ -58,7 +61,7 @@ fn create_new_user(user: Json<User>, map: State<UserMap>) -> JsonValue {
     if hashmap.is_empty() {
         user.id = 0;
         hashmap.insert(0, user.clone());
-        return json!({ "message": "Successfully created new user!", "user": user })
+        return json!({ "msg_code": 20002, "message": "Successfully created new user!", "data": user })
     };
     // Find highest index (key)
     let mut top_key: usize = 0;
@@ -74,22 +77,42 @@ fn create_new_user(user: Json<User>, map: State<UserMap>) -> JsonValue {
     // Filling empty slot with new user
     user.id = index;
     hashmap.insert(index, user.clone());
-    json!({ "message": "Successfully created new user!", "user": user })
+    json!({
+        "msg_code": 20002,
+        "message": "Successfully created new user!",
+        "data": user
+    })
 }
 
 #[get("/<id>")]
 fn get_user_by_index(id: ID, map: State<UserMap>) -> JsonValue {
-    match map.lock().unwrap().get(&id).map(|user| { json!(user) }) {
-        Some(result) => result,
-        None => json!({ "message": format!("User with ID {} does not exist!", id) }),
+    match map.lock().unwrap().get(&id).map(|user| { user }) {
+        Some(user) => json!({
+            "msg_code": 20000,
+            "id": id,
+            "data": user,
+        }),
+        None => json!({
+            "msg_code": 40001,
+            "id": id,
+            "message": format!("User with ID {} does not exist!", id)
+        }),
     }
 }
 
 #[delete("/<id>")]
 fn remove_user_by_index(id: ID, map: State<UserMap>) -> JsonValue {
     match map.lock().unwrap().remove(&id) {
-        Some(item) => json!({ "message": "Successfully removed user!", "user": item }),
-        None => json!({ "message": format!("User with ID {} does not exist!", id) }),
+        Some(user) => json!({
+            "msg_code": 20003,
+            "message": "Successfully removed user!",
+            "data": user
+        }),
+        None => json!({
+            "msg_code": 40001,
+            "id": id,
+            "message": format!("User with ID {} does not exist!", id)
+        }),
     }
 }
 
@@ -97,13 +120,21 @@ fn remove_user_by_index(id: ID, map: State<UserMap>) -> JsonValue {
 fn create_new_user_by_index(id: ID, user: Json<User>, map: State<UserMap>) -> JsonValue {
     let mut hashmap = map.lock().unwrap();
     if hashmap.contains_key(&id) {
-        return json!({ "message": format!("User with ID {} already exists! Aborted.", id) })
+        return json!({
+            "msg_code": 40002,
+            "id": id,
+            "message": format!("User with ID {} already exists! Aborted.", id)
+        })
     }
 
     let mut user = user.into_inner();
     user.id = id;
     hashmap.insert(id, user.clone());
-    return json!({ "message": "Successfully created new user!", "user": user })
+    return json!({
+        "msg_code": 20002,
+        "message": "Successfully created new user!",
+        "data": user
+    })
 }
 
 #[get("/?<page>")]
@@ -117,11 +148,14 @@ fn get_users_paginated(page: usize, map: State<UserMap>, context: State<Context>
         });
     }
     json!({
-        "page": page,
-        "per_page": context.page_size,
-        "items": data.len(),
-        "next_exist": data.len() == context.page_size,
-        "data": data,
+        "msg_code": 20003,
+        "data": {
+            "page_number": page,
+            "page_size": context.page_size,
+            "page_length": data.len(),
+            "has_next": data.len() == context.page_size,
+            "page": data,
+        }
     })
 }
 
@@ -149,9 +183,12 @@ fn account_register(data: Json<Data>, login_map: State<LoginMap>, login_cache: S
     });
 
     json!({
+        "msg_code": 20004,
         "message": "Registration success!",
-        "session": session,
-        "creation_date": Utc::now(),
+        "data": {
+            "session": session,
+            "creation_date": Utc::now(),
+        }
     })
 }
 
@@ -167,14 +204,20 @@ fn account_login(data: Json<Data>, login_map: State<LoginMap>, login_cache: Stat
         // Get value or return early with error (password doesn't match)
         let profile = match profiles.get_mut(&hash(data.password.as_bytes()).to_hex().to_string()) {
             Some(val) => val,
-            None => return json!({ "message": "Password was incorrect!" }),
+            None => return json!({
+                "msg_code": 40010,
+                "message": "Password was incorrect!"
+            }),
         };
         profile.session = session.clone();
 
         json!({
+            "msg_code": 20005,
             "message": "Login success!",
-            "session": session,
-            "creation_date": Utc::now(),
+            "data": {
+                "session": session,
+                "creation_date": Utc::now(),
+            }
         })
     }
 }
@@ -185,8 +228,8 @@ fn account_login(data: Json<Data>, login_map: State<LoginMap>, login_cache: Stat
 #[get("/")]
 fn catch_not_auth() -> JsonValue {
     json!({
-        "status": "error",
-        "reason": "Access denied! Authorization token is wrong or missing."
+        "msg_code": 40000,
+        "message": "Access denied! Authorization token is wrong or missing."
     })
 }
 
@@ -195,8 +238,8 @@ fn catch_not_auth() -> JsonValue {
 #[catch(404)]
 fn not_found() -> JsonValue {
     json!({
-        "status": "error",
-        "reason": "Resource was not found."
+        "msg_code": 50000,
+        "message": "Resource was not found. Make sure your request path and data are correct!"
     })
 }
 
