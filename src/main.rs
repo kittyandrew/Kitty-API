@@ -52,9 +52,10 @@ fn remove_all_users(map: State<UserMap>) -> JsonValue {
 
 #[get("/<id>")]
 fn get_user_by_index(id: ID, map: State<UserMap>) -> JsonValue {
-    map.lock().unwrap().get(&id).map(|user| {
-        json!(user)
-    }).expect("Failed to create json!")
+    match map.lock().unwrap().get(&id).map(|user| { json!(user) }) {
+        Some(result) => result,
+        None => json!({ "message": format!("User with ID {} does not exist!", id) }),
+    }
 }
 
 #[delete("/<id>")]
@@ -84,7 +85,8 @@ fn get_users_paginated(page: usize, map: State<UserMap>, context: State<Context>
     })
 }
 
-// Register - Login - Get page with session
+// Accounts section
+// TODO: Rewrite this section
 
 // Handling basic POST request with JSON data
 #[post("/register", format = "application/json", data = "<data>")]
