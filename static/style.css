@@ -12,6 +12,7 @@ body {
 
 .json-type {
     color: #05386b;
+    font-weight: bold;
 }
 
 .status-good {

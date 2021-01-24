@@ -20,6 +20,14 @@ USAGE
 
     Global parameters:
 
+        &lt;page&gt; - append integer (<span class="json-type">u64</span>) to endpoints that <b>state support
+                 for it</b> in their description. As a result, you request 
+                 will be paginated. In response you will recieve some
+                 additional info to the data, including <code>page_size</code>.
+
+                  Examples:
+                      - GET   /api/users?page=1
+
         &lt;delay&gt; - append integer in range 1-10 (min-max) to any
                   API request, so server will wait for &lt;delay&gt;
                   seconds before responding.
@@ -30,6 +38,7 @@ USAGE
                       - POST  /api/accounts/register?delay=3
 
     Users:
+        Supports pagination.
 
         GET /api/users
 
@@ -74,10 +83,6 @@ USAGE
         DELETE /api/users/&lt;id&gt;
 
             remove user with specific ID
-
-        GET /api/users?page=&lt;page&gt;
-
-            retrieve some amount of users and additional metadata.
 
     Accounts:
 
