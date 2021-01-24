@@ -35,9 +35,45 @@ USAGE
 
             retrieve all available users (without pagination).
 
+        POST /api/users
+
+            create new user with random ID (auto-increment)
+
+            REQUEST
+                <b>json:</b>
+                    </code>{
+                        <span class="json-string">"first_name"</span>: <span class="json-type">String</span>,
+                        <span class="json-string">"last_name"</span>: <span class="json-type">String</span>,
+                        <span class="json-string">"username"</span>: <span class="json-type">String</span>
+                        <span class="json-string">"email"</span>: <span class="json-type">String</span>,
+                        <span class="json-string">"age"</span>: <span class="json-type">u8</span>,
+                        <span class="json-string">"picture"</span>: <span class="json-type">String</span>,
+                        <span class="json-string">"active"</span>: <span class="json-type">bool</span>,
+                    }</code>
+
+            RESPONSE
+                <b class="status-good">200</b>:
+                        <span class="json-string">"message"</span>: <span class="json-string">"Successfully created new user!"</span>,
+                        <span class="json-string">"user"</span>: <span class="json-type">USER object</span>
+                    }</code>
+                <b class="status-bad">400</b>:
+                    If server will fail to parse data in the request, it will return "Resource not found" error.
+
+        DELETE /api/users
+
+            remove all existing users
+
         GET /api/users/&lt;id&gt;
 
-            retrieve a user with id `&lt;id&gt;` (if exists).
+            retrieve a user with ID `&lt;id&gt;` (if exists).
+
+        POST /api/users/&lt;id&gt;
+
+            create new user with specific ID
+
+        DELETE /api/users/&lt;id&gt;
+
+            remove user with specific ID
 
         GET /api/users?page=&lt;page&gt;
 
@@ -48,47 +84,47 @@ USAGE
         POST /api/accounts/register
 
             REQUEST
-                json:
+                <b>json:</b>
                     <code>{
-                        "email": String,
-                        "password": String,
+                        <span class="json-string">"email"</span>: <span class="json-type">String</span>,
+                        <span class="json-string">"password"</span>: <span class="json-type">String</span>,
                     }</code>
 
             RESPONSE
-                <b style="color: green;">200</b>:
+                <b class="status-good">200</b>:
                     <code>{
-                        "message": "Registration success!",
-                        "session": &lt;String, 24&gt;,
-                        "creation_date": &lt;Current UTC Time&gt;
+                        <span class="json-string">"message"</span>: <span class="json-string">"Registration success!"</span>,
+                        <span class="json-string">"session"</span>: <span class="json-type">&lt;String, 24&gt;</span>,
+                        <span class="json-string">"creation_date"</span>: <span class="json-type">&lt;Current UTC Time&gt;</span>
                     }</code>
-                <b style="color: red">401</b>:
-                    <code>{ "message": "Email must not be empty!" }</code>
-                    <code>{ "message": "User is already registered!" }</code>
-                    <code>{ "message": "Password must not be empty!" }</code>
-                    <code>{ "message": "Password is too short! Minimum length is 8 symbols." }</code>
-                    <code>{ "message": "Password is too long! Please use more practical length." }</code>
+                <b class="status-bad">401</b>:
+                    <code>{<span class="json-string">"message"</span>: <span class="json-string">Email must not be empty!"</span> }
+                    {<span class="json-string">"message"</span>: <span class="json-string">User is already registered!"</span> }
+                    {<span class="json-string">"message"</span>: <span class="json-string">Password must not be empty!"</span> }
+                    {<span class="json-string">"message"</span>: <span class="json-string">Password is too short! Minimum length is 8 symbols."</span> }
+                    {<span class="json-string">"message"</span>: <span class="json-string">Password is too long! Please use more practical length."</span> }</code>
 
         POST /api/accounts/login
 
             REQUEST
-                json:
+                <b>json:</b>
                     <code>{
-                        "email": String,
-                        "password": String,
+                        <span class="json-string">"email"</span>: <span class="json-type">String</span>,
+                        <span class="json-string">"password"</span>: <span class="json-type">String</span>,
                     }</code>
 
             RESPONSE
-                <b style="color: green;">200</b>:
+                <b class="status-good">200</b>:
                     <code>{
-                        "message": "Login success!",
-                        "session": &lt;String, 24&gt;,
-                        "creation_date": &lt;Current UTC Time&gt;
+                        <span class="json-string">"message"</span>: <span class="json-string">"Login success!"</span>,
+                        <span class="json-string">"session"</span>: <span class="json-type">&lt;String, 24&gt;</span>,
+                        <span class="json-string">"creation_date"</span>: <span class="json-type">&lt;Current UTC Time&gt;</span>
                     }</code>
-                <b style="color: red">401</b>:
-                    <code>{ "message": "Email must not be empty!" }</code>
-                    <code>{ "message": "Account with such email does not exist!" }</code>
-                    <code>{ "message": "Password must not be empty!" }</code>
-                    <code>{ "message": "Password was incorrect!" }</code>
+                <b class="status-bad">401</b>:
+                    <code>{<span class="json-string">"message"</span>: <span class="json-string">Email must not be empty!"</span> }
+                    {<span class="json-string">"message"</span>: <span class="json-string">Account with such email does not exist!"</span> }
+                    {<span class="json-string">"message"</span>: <span class="json-string">Password must not be empty!"</span> }
+                    {<span class="json-string">"message"</span>: <span class="json-string">Password was incorrect!"</span> }</code>
 
       </pre>
     </div>

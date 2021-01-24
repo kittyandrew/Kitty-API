@@ -69,9 +69,7 @@ fn create_new_user(user: Json<User>, map: State<UserMap>) -> JsonValue {
     // Now looking for smallest free index to add (in the worst case, we will append in the end)
     for i in 0..top_key + 1 {
         index = i + 1;
-        if !hashmap.contains_key(&index) {
-            break
-        }
+        if !hashmap.contains_key(&index) { break }
     }
     // Filling empty slot with new user
     user.id = index;

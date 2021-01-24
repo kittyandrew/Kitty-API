@@ -1,14 +1,32 @@
 
 body {
+/*
     background-color: #e8e8e8;
+*/
+    background-color: /*#379683*/#45baa3;
 }
 
-code {
-    color: hotpink;
+.json-string {
+    color: #004d1a;
+}
+
+.json-type {
+    color: #05386b;
+}
+
+.status-good {
+    color: #006600;
+}
+
+.status-bad {
+    color: #b30000;
 }
 
 .content-page {
+/*
     background-color: #e8e8e8;
+*/
+    background-color: /*#379683*/#45baa3;
 }
 
 .content-main {
