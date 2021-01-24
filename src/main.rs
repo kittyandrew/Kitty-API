@@ -42,26 +42,33 @@ fn get_index() -> Template {
 #[get("/")]
 fn get_all_users(map: State<UserMap>) -> JsonValue {
     json!({
-        "msg_code": 20000,
+        "msg_code": "no_info",
         "data": map.lock().unwrap().values().collect::<Vec<&User>>()
     })
 }
 
 #[delete("/")]
-fn remove_all_users(map: State<UserMap>) -> JsonValue {
+fn remove_all_users(map: State<UserMap>, context: State<Context>) -> JsonValue {
     map.lock().unwrap().clear();
-    json!({ "msg_code": 20001, "message": "All users were removed!" })
+    json!({
+        "msg_code": "info_users_removed",
+        "message": context.get_message("info_users_removed")
+    })
 }
 
 #[post("/", format = "application/json", data = "<user>")]
-fn create_new_user(user: Json<User>, map: State<UserMap>) -> JsonValue {
+fn create_new_user(user: Json<User>, map: State<UserMap>, context: State<Context>) -> JsonValue {
     let mut hashmap = map.lock().unwrap();
     let mut user = user.into_inner();
     // Do not look for free space if empty, just add first
     if hashmap.is_empty() {
         user.id = 0;
         hashmap.insert(0, user.clone());
-        return json!({ "msg_code": 20002, "message": "Successfully created new user!", "data": user })
+        return json!({
+            "msg_code": "info_new_user_ok",
+            "message": context.get_message("info_new_user_ok"),
+            "data": user
+        })
     };
     // Find highest index (key)
     let mut top_key: usize = 0;
@@ -78,52 +85,52 @@ fn create_new_user(user: Json<User>, map: State<UserMap>) -> JsonValue {
     user.id = index;
     hashmap.insert(index, user.clone());
     json!({
-        "msg_code": 20002,
-        "message": "Successfully created new user!",
+        "msg_code": "info_new_user_ok",
+        "message": context.get_message("info_new_user_ok"),
         "data": user
     })
 }
 
 #[get("/<id>")]
-fn get_user_by_index(id: ID, map: State<UserMap>) -> JsonValue {
+fn get_user_by_index(id: ID, map: State<UserMap>, context: State<Context>) -> JsonValue {
     match map.lock().unwrap().get(&id).map(|user| { user }) {
         Some(user) => json!({
-            "msg_code": 20000,
+            "msg_code": "no_info",
             "id": id,
             "data": user,
         }),
         None => json!({
-            "msg_code": 40001,
+            "msg_code": "err_user_not_exist",
             "id": id,
-            "message": format!("User with ID {} does not exist!", id)
+            "message": context.format_usize("err_user_not_exist", &vec![id])
         }),
     }
 }
 
 #[delete("/<id>")]
-fn remove_user_by_index(id: ID, map: State<UserMap>) -> JsonValue {
+fn remove_user_by_index(id: ID, map: State<UserMap>, context: State<Context>) -> JsonValue {
     match map.lock().unwrap().remove(&id) {
         Some(user) => json!({
-            "msg_code": 20003,
-            "message": "Successfully removed user!",
+            "msg_code": "info_remove_user_ok",
+            "message": context.get_message("info_remove_user_ok"),
             "data": user
         }),
         None => json!({
-            "msg_code": 40001,
+            "msg_code": "err_user_not_exist",
             "id": id,
-            "message": format!("User with ID {} does not exist!", id)
+            "message": context.format_usize("err_user_not_exist", &vec![id])
         }),
     }
 }
 
 #[post("/<id>", format = "application/json", data = "<user>")]
-fn create_new_user_by_index(id: ID, user: Json<User>, map: State<UserMap>) -> JsonValue {
+fn create_new_user_by_index(id: ID, user: Json<User>, map: State<UserMap>, context: State<Context>) -> JsonValue {
     let mut hashmap = map.lock().unwrap();
     if hashmap.contains_key(&id) {
         return json!({
-            "msg_code": 40002,
+            "msg_code": "err_user_exists",
             "id": id,
-            "message": format!("User with ID {} already exists! Aborted.", id)
+            "message": context.format_usize("User with ID {} already exists! Aborted.", &vec![id])
         })
     }
 
@@ -131,8 +138,8 @@ fn create_new_user_by_index(id: ID, user: Json<User>, map: State<UserMap>) -> Js
     user.id = id;
     hashmap.insert(id, user.clone());
     return json!({
-        "msg_code": 20002,
-        "message": "Successfully created new user!",
+        "msg_code": "info_new_user_success",
+        "message": context.get_message("info_new_user_success"),
         "data": user
     })
 }
@@ -148,7 +155,7 @@ fn get_users_paginated(page: usize, map: State<UserMap>, context: State<Context>
         });
     }
     json!({
-        "msg_code": 20003,
+        "msg_code": "no_info",
         "data": {
             "page_number": page,
             "page_size": context.page_size,
@@ -164,9 +171,9 @@ fn get_users_paginated(page: usize, map: State<UserMap>, context: State<Context>
 
 // Handling basic POST request with JSON data
 #[post("/register", format = "application/json", data = "<data>")]
-fn account_register(data: Json<Data>, login_map: State<LoginMap>, login_cache: State<LoginCache>) -> JsonValue {
+fn account_register(data: Json<Data>, login_map: State<LoginMap>, login_cache: State<LoginCache>, context: State<Context>) -> JsonValue {
     // Handle early returns
-    if let Some(error) = reg_data_has_error(&data, &login_cache) {
+    if let Some(error) = reg_data_has_error(&data, &login_cache, &context) {
         return error
     }
 
@@ -183,8 +190,8 @@ fn account_register(data: Json<Data>, login_map: State<LoginMap>, login_cache: S
     });
 
     json!({
-        "msg_code": 20004,
-        "message": "Registration success!",
+        "msg_code": "info_reg_success",
+        "message": context.get_message("info_reg_success"),
         "data": {
             "session": session,
             "creation_date": Utc::now(),
@@ -193,8 +200,8 @@ fn account_register(data: Json<Data>, login_map: State<LoginMap>, login_cache: S
 }
 
 #[post("/login", data = "<data>")]
-fn account_login(data: Json<Data>, login_map: State<LoginMap>, login_cache: State<LoginCache>) -> JsonValue {
-    if let Some(error) = login_data_has_error(&data, &login_cache) {
+fn account_login(data: Json<Data>, login_map: State<LoginMap>, login_cache: State<LoginCache>, context: State<Context>) -> JsonValue {
+    if let Some(error) = login_data_has_error(&data, &login_cache, &context) {
         return error
     } else {
         // Recreate session on each login (meaning 1 session at a time)
@@ -205,15 +212,15 @@ fn account_login(data: Json<Data>, login_map: State<LoginMap>, login_cache: Stat
         let profile = match profiles.get_mut(&hash(data.password.as_bytes()).to_hex().to_string()) {
             Some(val) => val,
             None => return json!({
-                "msg_code": 40010,
-                "message": "Password is incorrect!"
+                "msg_code": "err_bad_credentials",
+                "message": context.get_message("err_bad_credentials")
             }),
         };
         profile.session = session.clone();
 
         json!({
-            "msg_code": 20005,
-            "message": "Login success!",
+            "msg_code": "info_login_success",
+            "message": context.get_message("info_login_success"),
             "data": {
                 "session": session,
                 "creation_date": Utc::now(),
@@ -226,10 +233,10 @@ fn account_login(data: Json<Data>, login_map: State<LoginMap>, login_cache: Stat
 
 // This is AWFUL. MY GOD Rocket WHY
 #[get("/")]
-fn catch_not_auth() -> JsonValue {
+fn catch_not_auth(context: State<Context>) -> JsonValue {
     json!({
-        "msg_code": 40000,
-        "message": "Access denied! Authorization token is wrong or missing."
+        "msg_code": "err_access_denied",
+        "message": context.get_message("err_access_denied")
     })
 }
 
@@ -238,8 +245,8 @@ fn catch_not_auth() -> JsonValue {
 #[catch(404)]
 fn not_found() -> JsonValue {
     json!({
-        "msg_code": 50000,
-        "message": "Resource was not found. Make sure your request path and data are correct!"
+        "msg_code": "err_res_not_found",
+        // TODO: broken, thanks rocket. // "message": context.get_message("err_res_not_found")
     })
 }
 

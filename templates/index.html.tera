@@ -67,7 +67,8 @@
                         <span class="json-string">"data"</span>: <span class="json-type">&lt;User object&gt;</span>
                     }</code>
                 <b class="status-bad">bad</b>:
-                    If server will fail to parse data from the request, it will return "Resource not found" error.
+                    If server will fail to parse data from the request,
+                    it will return "Resource not found" error.
 
         DELETE /api/users
 
@@ -107,11 +108,26 @@
                         }
                     }</code>
                 <b class="status-bad">bad</b>:
-                    <code>{ <span class="json-string">"msg_code"</span>: <span class="json-string">40004</span>, <span class="json-string">"message"</span>: <span class="json-string">"Email must not be empty!"</span> }
-                    { <span class="json-string">"msg_code"</span>: <span class="json-string">40005</span>, <span class="json-string">"message"</span>: <span class="json-string">"Password must not be empty!"</span> }
-                    { <span class="json-string">"msg_code"</span>: <span class="json-string">40006</span>, <span class="json-string">"message"</span>: <span class="json-string">"Password is too short! Minimum length is 8 symbols."</span> }
-                    { <span class="json-string">"msg_code"</span>: <span class="json-string">40007</span>, <span class="json-string">"message"</span>: <span class="json-string">"Password is too long! Please use more practical length."</span> }
-                    { <span class="json-string">"msg_code"</span>: <span class="json-string">40008</span>, <span class="json-string">"message"</span>: <span class="json-string">"User is already registered!"</span> }</code>
+                    <code>{
+                        <span class="json-string">"msg_code"</span>: <span class="json-string">40004</span>,
+                        <span class="json-string">"message"</span>: <span class="json-string">"Email must not be empty!"</span>
+                    }
+                    {
+                        <span class="json-string">"msg_code"</span>: <span class="json-string">40005</span>,
+                        <span class="json-string">"message"</span>: <span class="json-string">"Password must not be empty!"</span>
+                    }
+                    {
+                        <span class="json-string">"msg_code"</span>: <span class="json-string">40006</span>,
+                        <span class="json-string">"message"</span>: <span class="json-string">"Password is too short! Minimum length is 8 symbols."</span>
+                    }
+                    {
+                        <span class="json-string">"msg_code"</span>: <span class="json-string">40007</span>,
+                        <span class="json-string">"message"</span>: <span class="json-string">"Password is too long! Please use more practical length."</span>
+                    }
+                    {
+                        <span class="json-string">"msg_code"</span>: <span class="json-string">40008</span>,
+                        <span class="json-string">"message"</span>: <span class="json-string">"User is already registered!"</span>
+                    }</code>
 
         POST /api/accounts/login
 
@@ -133,13 +149,30 @@
                         }
                     }</code>
                 <b class="status-bad">bad</b>:
-                    <code>{ <span class="json-string">"msg_code"</span>: <span class="json-string">40004</span>, <span class="json-string">"message"</span>: <span class="json-string">"Email must not be empty!"</span> }
-                    { <span class="json-string">"msg_code"</span>: <span class="json-string">40005</span>, <span class="json-string">"message"</span>: <span class="json-string">"Password must not be empty!"</span> }
-                    { <span class="json-string">"msg_code"</span>: <span class="json-string">40006</span>, <span class="json-string">"message"</span>: <span class="json-string">"Password is too short! Minimum length is 8 symbols."</span> }
-                    { <span class="json-string">"msg_code"</span>: <span class="json-string">40007</span>, <span class="json-string">"message"</span>: <span class="json-string">"Password is too long! Please use more practical length."</span> }
-                    { <span class="json-string">"msg_code"</span>: <span class="json-string">40009</span>, <span class="json-string">"message"</span>: <span class="json-string">"Account with such email does not exist!"</span> }
-                    { <span class="json-string">"msg_code"</span>: <span class="json-string">40010</span>, <span class="json-string">"message"</span>: <span class="json-string">"Password is incorrect!"</span> }</code>
-
+                    <code>{
+                        <span class="json-string">"msg_code"</span>: <span class="json-string">40004</span>,
+                        <span class="json-string">"message"</span>: <span class="json-string">"Email must not be empty!"</span>
+                    }
+                    {
+                        <span class="json-string">"msg_code"</span>: <span class="json-string">40005</span>,
+                        <span class="json-string">"message"</span>: <span class="json-string">"Password must not be empty!"</span>
+                    }
+                    {
+                        <span class="json-string">"msg_code"</span>: <span class="json-string">40006</span>,
+                        <span class="json-string">"message"</span>: <span class="json-string">"Password is too short! Minimum length is 8 symbols."</span>
+                    }
+                    {
+                        <span class="json-string">"msg_code"</span>: <span class="json-string">40007</span>,
+                        <span class="json-string">"message"</span>: <span class="json-string">"Password is too long! Please use more practical length."</span>
+                    }
+                    {
+                        <span class="json-string">"msg_code"</span>: <span class="json-string">40009</span>,
+                        <span class="json-string">"message"</span>: <span class="json-string">"Account with such email does not exist!"</span>
+                    }
+                    {
+                        <span class="json-string">"msg_code"</span>: <span class="json-string">40010</span>,
+                        <span class="json-string">"message"</span>: <span class="json-string">"Password is incorrect!"</span>
+                    }</code>
       </pre>
     </div>
   </body>

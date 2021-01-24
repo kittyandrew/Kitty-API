@@ -1,0 +1,21 @@
+{
+    "info_users_removed": "Successfully removed all users!",
+    "info_remove_user_ok": "Successfully removed user!",
+    "info_new_user_ok": "Successfully created new user!",
+    "info_login_success": "Login success!",
+    "info_reg_success": "Registration success!",
+
+    "err_user_not_exist": "User with ID '{}' does not exist!",
+    "err_user_exists": "User with ID '{}' already exists! Aborted.",
+
+    "err_email_empty": "Email must not be empty!",
+    "err_password_empty": "Password must not be empty!",
+    "err_password_short": "Password is too short! Minimal length is 8 symbols.",
+    "err_password_long": "Password is too long! Please use more practical length.",
+    "err_email_taken": "User with email '{}' already exists! Aborted.",
+
+    "err_bad_credentials": "Your email/password combination is incorrect!",
+
+    "err_access_denied": "Access denied! Authorization token is wrong or missing.", 
+    "err_res_not_found": "Resource not found! Make you sure your request path and data are correct."
+}
