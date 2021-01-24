@@ -50,6 +50,35 @@ fn remove_all_users(map: State<UserMap>) -> JsonValue {
     json!({ "message": "All users were removed!" })
 }
 
+#[post("/", format = "application/json", data = "<user>")]
+fn create_new_user(user: Json<User>, map: State<UserMap>) -> JsonValue {
+    let mut hashmap = map.lock().unwrap();
+    let mut user = user.into_inner();
+    // Do not look for free space if empty, just add first
+    if hashmap.is_empty() {
+        user.id = 0;
+        hashmap.insert(0, user.clone());
+        return json!({ "message": "Successfully created new user!", "user": user })
+    };
+    // Find highest index (key)
+    let mut top_key: usize = 0;
+    for key in hashmap.keys() {
+        if key > &top_key { top_key = *key; }
+    }
+    let mut index: usize = 1;
+    // Now looking for smallest free index to add (in the worst case, we will append in the end)
+    for i in 0..top_key + 1 {
+        index = i + 1;
+        if !hashmap.contains_key(&index) {
+            break
+        }
+    }
+    // Filling empty slot with new user
+    user.id = index;
+    hashmap.insert(index, user.clone());
+    json!({ "message": "Successfully created new user!", "user": user })
+}
+
 #[get("/<id>")]
 fn get_user_by_index(id: ID, map: State<UserMap>) -> JsonValue {
     match map.lock().unwrap().get(&id).map(|user| { json!(user) }) {
@@ -64,6 +93,19 @@ fn remove_user_by_index(id: ID, map: State<UserMap>) -> JsonValue {
         Some(item) => json!({ "message": "Successfully removed user!", "user": item }),
         None => json!({ "message": format!("User with ID {} does not exist!", id) }),
     }
+}
+
+#[post("/<id>", format = "application/json", data = "<user>")]
+fn create_new_user_by_index(id: ID, user: Json<User>, map: State<UserMap>) -> JsonValue {
+    let mut hashmap = map.lock().unwrap();
+    if hashmap.contains_key(&id) {
+        return json!({ "message": format!("User with ID {} already exists! Aborted.", id) })
+    }
+
+    let mut user = user.into_inner();
+    user.id = id;
+    hashmap.insert(id, user.clone());
+    return json!({ "message": "Successfully created new user!", "user": user })
 }
 
 #[get("/?<page>")]
@@ -168,7 +210,8 @@ fn rocket() -> rocket::Rocket {
         // API routes
         .mount("/api/users", routes![
             get_all_users, get_user_by_index, get_users_paginated,
-            remove_all_users, remove_user_by_index,
+            remove_all_users, remove_user_by_index, create_new_user,
+            create_new_user_by_index,
         ])
         .mount("/api/accounts", routes![account_register, account_login])
         // Error route for TOKEN header handler
