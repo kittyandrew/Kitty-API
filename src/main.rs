@@ -44,11 +44,25 @@ fn get_all_users(map: State<UserMap>) -> JsonValue {
     json!(map.lock().unwrap().values().collect::<Vec<&User>>())
 }
 
+#[delete("/")]
+fn remove_all_users(map: State<UserMap>) -> JsonValue {
+    map.lock().unwrap().clear();
+    json!({ "message": "All users were removed!" })
+}
+
 #[get("/<id>")]
 fn get_user_by_index(id: ID, map: State<UserMap>) -> JsonValue {
     map.lock().unwrap().get(&id).map(|user| {
         json!(user)
     }).expect("Failed to create json!")
+}
+
+#[delete("/<id>")]
+fn remove_user_by_index(id: ID, map: State<UserMap>) -> JsonValue {
+    match map.lock().unwrap().remove(&id) {
+        Some(item) => json!({ "message": "Successfully removed user!", "user": item }),
+        None => json!({ "message": format!("User with ID {} does not exist!", id) }),
+    }
 }
 
 #[get("/?<page>")]
@@ -150,7 +164,10 @@ fn rocket() -> rocket::Rocket {
         // Home page
         .mount("/", routes![get_index])
         // API routes
-        .mount("/api/users", routes![get_all_users, get_user_by_index, get_users_paginated])
+        .mount("/api/users", routes![
+            get_all_users, get_user_by_index, get_users_paginated,
+            remove_all_users, remove_user_by_index,
+        ])
         .mount("/api/accounts", routes![account_register, account_login])
         // Error route for TOKEN header handler
         .mount("/api/not_authorized", routes![catch_not_auth])
