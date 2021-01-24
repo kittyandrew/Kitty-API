@@ -1,9 +1,6 @@
 
 body {
-/*
-    background-color: #e8e8e8;
-*/
-    background-color: /*#379683*/#45baa3;
+    background-color: #45baa3;
 }
 
 .json-string {
@@ -24,10 +21,7 @@ body {
 }
 
 .content-page {
-/*
-    background-color: #e8e8e8;
-*/
-    background-color: /*#379683*/#45baa3;
+    background-color: #45baa3;
 }
 
 .content-main {

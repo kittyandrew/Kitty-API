@@ -206,7 +206,7 @@ fn account_login(data: Json<Data>, login_map: State<LoginMap>, login_cache: Stat
             Some(val) => val,
             None => return json!({
                 "msg_code": 40010,
-                "message": "Password was incorrect!"
+                "message": "Password is incorrect!"
             }),
         };
         profile.session = session.clone();
