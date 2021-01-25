@@ -1,6 +1,6 @@
 [package]
 name = "kitty-api"
-version = "0.3.6"
+version = "0.0.36"
 authors = ["kittyandrew <kitty@maudrew.dev>"]
 edition = "2018"
 
@@ -19,4 +19,4 @@ chrono = { version = "0.4", features = ["serde"] }
 rand = "0.7.3"
 either = "1.6.1"
 tokio = "0.3.5"
-dynfmt ={ version = "0.1.4", features = ["curly"] }
+dynfmt = { version = "0.1.4", features = ["curly"] }
