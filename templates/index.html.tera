@@ -17,7 +17,7 @@
     <div class="content-page">
       <pre class="content-main">
         <b>Kitty-API</b>
-            <b>Current page is just a template! The project status is <i>Work In Progress</i>.</b>
+            <b>Current page is just a template! The project status is <i>"Work In Progress"</i>.</b>
             Latest documentation can be found <b><a href="{{ docs_url }}">here</a></b>.
       </pre>
     </div>

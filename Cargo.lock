@@ -747,7 +747,7 @@ dependencies = [
 
 [[package]]
 name = "kitty-api"
-version = "0.3.6"
+version = "0.0.37"
 dependencies = [
  "blake3",
  "chrono",
