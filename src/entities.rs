@@ -53,9 +53,11 @@ pub struct Data {
 }
 
 // Context container, useful for configurations
+#[derive(Serialize)]
 pub struct Context {
     pub page_size: usize,
     pub messages: HashMap<String, String>,
+    pub docs_url: String,
 }
 
 impl Context {
@@ -191,6 +193,7 @@ pub fn get_context() -> Context {
             Err(_) => 5,
         },
         messages: status_messages.clone(),
+        docs_url: "https://github.com/kittyandrew/Kitty-API/tree/master/docs/DOCS.md".to_string(),
     }
 }
 

@@ -17,7 +17,6 @@ use blake3::hash;
 // use either::Either;
 use rocket::State;
 // Standard
-use std::collections::HashMap;
 use std::env;
 // Own code
 mod entities;
@@ -30,9 +29,8 @@ use entities::{
 // Home page
 
 #[get("/")]
-fn get_index() -> Template {
-    let hashmap = HashMap::<String, String>::new();
-    Template::render("index", &hashmap)
+fn get_index(context: State<Context>) -> Template {
+    Template::render("index", &context.inner())
 }
 
 // All API routes
