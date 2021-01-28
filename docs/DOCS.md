@@ -6,6 +6,7 @@
 &lt;page&gt; - if endpoint states that it supports pagination, you can prepend to get certain amount of items (paginated).
 
 ### Users Endpoint
+*Supports pagination*
 ##### /api/users
 * POST
 * GET
