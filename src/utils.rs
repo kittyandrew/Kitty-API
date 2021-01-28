@@ -80,6 +80,20 @@ pub fn login_data_has_error(data: &Json<Data>, login_cache: &State<LoginCache>, 
     }
 }
 
+pub fn get_free_index<T>(map: &HashMap<usize, T>) -> usize {
+    let mut top_key: usize = 0;
+    for key in map.keys() {
+        if key > &top_key { top_key = *key; }
+    }
+    let mut index: usize = 1;
+    // Now looking for smallest free index to add (in the worst case, we will append in the end)
+    for i in 0..top_key + 1 {
+        index = i + 1;
+        if !map.contains_key(&index) { break }
+    }
+    index
+}
+
 pub fn generate_users() -> UserMap {
     let mut map = HashMap::<ID, User>::new();
     // Reading file with users
