@@ -2,8 +2,10 @@
     "info_users_removed": "Successfully removed {} users!",
     "info_remove_user_ok": "Successfully removed user!",
     "info_new_user_ok": "Successfully created new user!",
-    "info_login_success": "Login success!",
-    "info_reg_success": "Registration success!",
+    "info_user_put_ok": "Successfully replaced user with the ID '{}'!",
+
+    "info_login_ok": "Login success!",
+    "info_reg_ok": "Registration success!",
 
     "err_user_not_exist": "User with ID '{}' does not exist!",
     "err_user_exists": "User with ID '{}' already exists! Aborted.",

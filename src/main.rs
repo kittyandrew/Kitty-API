@@ -131,7 +131,7 @@ fn create_new_user_by_index(id: ID, user: Json<User>, map: State<UserMap>, conte
         return json!({
             "msg_code": "err_user_exists",
             "id": id,
-            "message": context.format_usize("User with ID {} already exists! Aborted.", &vec![id])
+            "message": context.format_usize("err_user_exists", &vec![id])
         })
     }
 
@@ -139,8 +139,21 @@ fn create_new_user_by_index(id: ID, user: Json<User>, map: State<UserMap>, conte
     user.id = id;
     hashmap.insert(id, user.clone());
     return json!({
-        "msg_code": "info_new_user_success",
-        "message": context.get_message("info_new_user_success"),
+        "msg_code": "info_new_user_ok",
+        "message": context.get_message("info_new_user_ok"),
+        "data": user
+    })
+}
+
+#[put("/<id>", format = "application/json", data = "<user>")]
+fn put_user_by_index(id: ID, user: Json<User>, map: State<UserMap>, context: State<Context>) -> JsonValue {
+    let mut hashmap = map.lock().unwrap();
+    let mut user = user.into_inner();
+    user.id = id;
+    hashmap.insert(id, user.clone());
+    return json!({
+        "msg_code": "info_user_put_ok",
+        "message": context.format_usize("info_user_put_ok", &vec![id]),
         "data": user
     })
 }
@@ -191,8 +204,8 @@ fn account_register(data: Json<Data>, login_map: State<LoginMap>, login_cache: S
     });
 
     json!({
-        "msg_code": "info_reg_success",
-        "message": context.get_message("info_reg_success"),
+        "msg_code": "info_reg_ok",
+        "message": context.get_message("info_reg_ok"),
         "data": {
             "session": session,
             "creation_date": Utc::now(),
@@ -220,8 +233,8 @@ fn account_login(data: Json<Data>, login_map: State<LoginMap>, login_cache: Stat
         profile.session = session.clone();
 
         json!({
-            "msg_code": "info_login_success",
-            "message": context.get_message("info_login_success"),
+            "msg_code": "info_login_ok",
+            "message": context.get_message("info_login_ok"),
             "data": {
                 "session": session,
                 "creation_date": Utc::now(),
@@ -260,7 +273,7 @@ fn rocket() -> rocket::Rocket {
         .mount("/api/users", routes![
             get_all_users, get_user_by_index, get_users_paginated,
             remove_all_users, remove_user_by_index, create_new_user,
-            create_new_user_by_index,
+            create_new_user_by_index, put_user_by_index,
         ])
         .mount("/api/accounts", routes![account_register, account_login])
         // Error route for TOKEN header handler
