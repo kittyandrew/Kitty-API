@@ -1,5 +1,5 @@
 {
-    "info_users_removed": "Successfully removed all users!",
+    "info_users_removed": "Successfully removed {} users!",
     "info_remove_user_ok": "Successfully removed user!",
     "info_new_user_ok": "Successfully created new user!",
     "info_login_success": "Login success!",

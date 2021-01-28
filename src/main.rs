@@ -47,10 +47,13 @@ fn get_all_users(map: State<UserMap>) -> JsonValue {
 
 #[delete("/")]
 fn remove_all_users(map: State<UserMap>, context: State<Context>) -> JsonValue {
-    map.lock().unwrap().clear();
+    let mut hashmap = map.lock().unwrap();
+    let size = hashmap.len();
+    hashmap.clear();
     json!({
         "msg_code": "info_users_removed",
-        "message": context.get_message("info_users_removed")
+        "users_removed": size,
+        "message": context.format_usize("info_users_removed", &vec![size])
     })
 }
 
