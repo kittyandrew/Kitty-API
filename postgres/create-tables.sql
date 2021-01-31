@@ -6,5 +6,5 @@ CREATE TABLE users (
   email TEXT NOT NULL,
   age NUMERIC NOT NULL,
   active BOOLEAN NOT NULL DEFAULT 't',
-  picture TEXT NOT NULL,
+  picture TEXT NOT NULL
 )
