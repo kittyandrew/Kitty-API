@@ -2,8 +2,9 @@ version: "3.7"
 services:
   db:
     container_name: kitty-api-db
-    image: postgres
+    image: kitty-api-db
     restart: always
+    build: postgres
     environment:
       - POSTGRES_USER=kitty
       - POSTGRES_PASSWORD=hackme
