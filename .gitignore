@@ -2,3 +2,4 @@
 cats.json
 .env
 *.swp
+.databases
