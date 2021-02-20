@@ -14,18 +14,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
-  api:
-    container_name: kitty-api
-    image: kitty-api
-    restart: always
-    build: .
-    environment:
-      - TOKEN
-    depends_on:
-      - db
-
-networks:
-  default:
-    external:
-      name: caddynet
+    # Develop config
+    ports:
+      - 5432:5432

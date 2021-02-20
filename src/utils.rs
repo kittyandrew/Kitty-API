@@ -1,18 +1,15 @@
-// Standard
-use std::collections::{HashMap, HashSet};
-use std::env;
-use std::fs;
-// Third Party
 use rocket_contrib::json::{Json, JsonValue};
+use std::collections::{HashMap, HashSet};
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
-// use rocket::request::Form;
-// use either::Either;
 use rocket::State;
+use std::env;
+use std::fs;
+// Own code
 use crate::entities::{
-    ID, User, UserMap, Context, LoginCache, Data,
-    LoginMap, Profile,
+    User, Context, LoginCache, Data, LoginMap, Profile,
 };
+
 
 pub fn reg_data_has_error(data: &Json<Data>, login_cache: &State<LoginCache>, context: &State<Context>) -> Option<JsonValue> {
     match data {
@@ -47,6 +44,7 @@ pub fn reg_data_has_error(data: &Json<Data>, login_cache: &State<LoginCache>, co
     }
 }
 
+
 pub fn login_data_has_error(data: &Json<Data>, login_cache: &State<LoginCache>, context: &State<Context>) -> Option<JsonValue> {
     match data {
         // Handle empty email
@@ -80,49 +78,33 @@ pub fn login_data_has_error(data: &Json<Data>, login_cache: &State<LoginCache>, 
     }
 }
 
-pub fn get_free_index<T>(map: &HashMap<usize, T>) -> usize {
-    let mut top_key: usize = 0;
-    for key in map.keys() {
-        if key > &top_key { top_key = *key; }
-    }
-    let mut index: usize = 1;
-    // Now looking for smallest free index to add (in the worst case, we will append in the end)
-    for i in 0..top_key + 1 {
-        index = i + 1;
-        if !map.contains_key(&index) { break }
-    }
-    index
-}
 
-pub fn generate_users() -> UserMap {
-    let mut map = HashMap::<ID, User>::new();
+pub fn generate_users() -> Vec<User> {
     // Reading file with users
     let users_raw = fs::read_to_string("./data/users.json")
         .expect("You must provide json file with a list of users!");
     // Parsing array of users
-    let mut users_arr: Vec<User> = serde_json::from_str(&users_raw)
-        .expect("JSON must be a list of User(s)!");
-
-    for i in 0..users_arr.len() {
-        users_arr[i].id = i;
-        map.insert(i, users_arr[i].clone());
-    }
-    UserMap::new(map)
+    serde_json::from_str(&users_raw)
+        .expect("JSON must be a list of User(s)!")
 }
+
 
 pub fn get_login_storage() -> LoginMap {
     LoginMap::new(HashMap::<String, Profile>::new())
 }
 
+
 pub fn get_login_cache() -> LoginCache {
     LoginCache::new(HashSet::<String>::new())
 }
+
 
 pub fn new_session(n: usize) -> String {
     thread_rng().sample_iter(&Alphanumeric)
                 .take(n)
                 .collect()
 }
+
 
 pub fn get_context() -> Context {
     // Load error codes and messages

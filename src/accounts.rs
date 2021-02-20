@@ -1,10 +1,7 @@
-// Third Party
 use rocket_contrib::json::{Json, JsonValue};
 use chrono::prelude::Utc;
 use rocket::State;
 use blake3::hash;
-// TODO: Look into using "Private Cookies" by Rocket
-// use rocket::http::CookieJar;
 // Own code
 use crate::entities::{
     LoginMap, LoginCache, Data, Profile, Context,
