@@ -1,14 +1,12 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 #[macro_use] extern crate rocket;
 #[macro_use] extern crate rocket_contrib;
-// Third Party
 use rocket::tokio::time::{delay_for, Duration};
 use rocket_contrib::templates::Template;
 use rocket_contrib::serve::StaticFiles;
 use rocket::http::uri::Origin;
 use rocket::fairing::AdHoc;
 use rocket::http::Method;
-// Standard
 use std::env;
 
 
@@ -90,7 +88,7 @@ fn rocket() -> rocket::Rocket {
                     Some(val) => match val {
                         val if val.to_string() == token => return,
                         // This is AWFUL. MY GOD Rocket WHY
-                        _val => {
+                        _ => {
                             req.set_uri(bad_uri);
                             req.set_method(Method::Get);
                         },
@@ -108,7 +106,6 @@ fn rocket() -> rocket::Rocket {
         // Databases
         .attach(entities::KittyBox::fairing())
         // "local" vars
-        // .manage(utils::map_generate_users())
         .manage(utils::get_login_storage())
         .manage(utils::get_login_cache())
         // Config

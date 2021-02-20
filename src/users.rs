@@ -1,6 +1,4 @@
 use rocket_contrib::json::{Json, JsonValue};
-use rocket::State;
-// Own code
 use crate::entities::{ID, User, KittyBox};
 use crate::headers::PageSize;
 
@@ -22,33 +20,29 @@ pub async fn get_all_users(conn: KittyBox) -> JsonValue {
 
 #[delete("/")]
 pub async fn remove_all_users(conn: KittyBox) -> JsonValue {
-    conn.run(
-        |c| {
+    json!({
+        "msg_code": "info_users_removed",
+        // "message": context.format_usize("info_users_removed", &vec![size])
+        "users_removed": conn.run(|c| {
             let count: i64 = c.query_one("SELECT count(*) FROM users", &[])
                 .unwrap()
                 .get("count");
             // @UseCase: do we want reset identity here? Probably yes.
             c.execute("TRUNCATE TABLE users RESTART IDENTITY", &[])
                 .expect("Fatal error when cleaning users table!");
-            json!({
-                "msg_code": "info_users_removed",
-                // "message": context.format_usize("info_users_removed", &vec![size])
-                "users_removed": count,
-            })
-        }
-    ).await
+            count
+        }).await,
+    })
 }
 
 
 #[post("/", format = "application/json", data = "<user>")]
 pub async fn create_new_user(user: Json<User>, conn: KittyBox) -> JsonValue {
-    conn.run(
-        |c| json!({
-            "msg_code": "info_new_user_ok",
-            // "message": context.get_message("info_new_user_ok"),
-            "user_id": user.into_inner().insert(c),
-        })
-    ).await
+    json!({
+        "msg_code": "info_new_user_ok",
+        // "message": context.get_message("info_new_user_ok"),
+        "user_id": conn.run(|c| user.into_inner().insert(c)).await,
+    })
 }
 
 
@@ -124,17 +118,15 @@ pub async fn create_new_user_by_index(id: ID, user: Json<User>, conn: KittyBox) 
 
 #[put("/<id>", format = "application/json", data = "<user>")]
 pub async fn put_user_by_index(id: ID, user: Json<User>, conn: KittyBox) -> JsonValue {
-    conn.run(
-        move |c| {
+    json!({
+        "msg_code": "info_user_put_ok",
+        // "message": context.get_message("info_new_user_ok"),
+        "user_id": conn.run(move |c| {
             let mut db_user = user.into_inner();
             db_user.id = id;
-            json!({
-                "msg_code": "info_user_put_ok",
-                // "message": context.get_message("info_new_user_ok"),
-                "user_id": db_user.put(c),
-            })
-        }
-    ).await
+            db_user.put(c)
+        }).await,
+    })
 }
 
 

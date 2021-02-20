@@ -1,6 +1,5 @@
 use crate::utils::generate_users;
 use postgres::{Client, NoTls};
-use rust_decimal::prelude::*;
 
 
 // const DB_URL: &str = "postgres://kitty:hackme@kitty-api-db:5432/kittybox";

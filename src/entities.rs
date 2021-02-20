@@ -1,20 +1,14 @@
-// Standard
 use std::collections::{HashMap, HashSet};
-// use std::convert::TryInto;
-use std::sync::Mutex;
-// Third Party
+use rocket_contrib::databases::postgres;
 // -- "FUCK YOU rust, and rust devs" section --
 use dynfmt::{Format, SimpleCurlyFormat};
 // -- end of section --
-use rocket_contrib::databases::postgres;
 use serde::{Serialize, Deserialize};
-use rust_decimal::prelude::*;
+use std::sync::Mutex;
 
 
 // The type to represent id of a user.
 pub type ID = u32;
-// Storage for all users, instead of DB.
-pub type UserMap = Mutex<HashMap<ID, User>>;
 // Storage for all profiles
 pub type LoginMap = Mutex<HashMap<String, Profile>>;
 // Cache for all existing emails
@@ -23,9 +17,7 @@ pub type LoginCache = Mutex<HashSet<String>>;
 #[database("kittybox")]
 pub struct KittyBox(postgres::Client);
 
-// @FeatureReq: make "Email", "Url" types so we can type check for them (?)
 #[derive(Serialize, Deserialize, Clone, Debug)]
-// #[postgres(name = "struct_user")]
 pub struct User {
     #[serde(skip_deserializing)]
     pub id: ID,
@@ -129,11 +121,6 @@ impl Context {
     pub fn get_message(&self, code: &str) -> &str {
         // TODO: implement translations later
         self.messages.get(code).expect("You done oof-ed with the error messages!").as_str()
-    }
-
-    pub fn format_usize(&self, code: &str, args: &Vec<u32>) -> String {
-        let message = self.get_message(&code);
-        SimpleCurlyFormat.format(message, args).expect("FUCK YOU rust, and rust devs").into_owned()
     }
 
     pub fn format_str(&self, code: &str, args: &Vec<&str>) -> String {
