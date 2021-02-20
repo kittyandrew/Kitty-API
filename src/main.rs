@@ -8,12 +8,9 @@ use rocket_contrib::serve::StaticFiles;
 use rocket::http::uri::Origin;
 use rocket::fairing::AdHoc;
 use rocket::http::Method;
-// TODO: Look into using "Private Cookies" by Rocket
-// use rocket::http::CookieJar;
-// use rocket::request::Form;
-// use either::Either;
 // Standard
 use std::env;
+
 
 // Own code
 mod entities;
@@ -21,22 +18,28 @@ mod utils;
 mod users;
 mod accounts;
 mod misc;
+mod preparation;
+mod headers;
+
 
 #[launch]
 fn rocket() -> rocket::Rocket {
+    // Generate data
+    preparation::generate_data();
+
     rocket::ignite()
         // Home page
         .mount("/", routes![misc::get_index])
         // API routes
         .mount("/api/users", routes![
             users::get_all_users,
-            users::get_user_by_index,
-            users::get_users_paginated,
             users::remove_all_users,
-            users::remove_user_by_index,
             users::create_new_user,
+            users::get_user_by_index,
+            users::remove_user_by_index,
             users::create_new_user_by_index,
             users::put_user_by_index,
+            users::get_users_paginated,
         ])
         .mount("/api/accounts", routes![
             accounts::account_register,
@@ -100,11 +103,12 @@ fn rocket() -> rocket::Rocket {
                 };
             })
         }))
-
         // All-catchers
         .register(catchers![misc::not_found])
+        // Databases
+        .attach(entities::KittyBox::fairing())
         // "local" vars
-        .manage(utils::generate_users())
+        // .manage(utils::map_generate_users())
         .manage(utils::get_login_storage())
         .manage(utils::get_login_cache())
         // Config

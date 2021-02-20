@@ -4,7 +4,7 @@ CREATE TABLE users (
   first_name TEXT NOT NULL,
   last_name TEXT NOT NULL,
   email TEXT NOT NULL,
-  age NUMERIC NOT NULL,
-  active BOOLEAN NOT NULL DEFAULT 't',
+  age INTEGER NOT NULL,
+  active BOOLEAN NOT NULL,
   picture TEXT NOT NULL
-)
+);

@@ -1,6 +1,5 @@
 [global]
 address = "0.0.0.0"
-# default port is 8000
 template_dir = "templates/"
 
 [global.databases]
@@ -8,6 +7,7 @@ kittybox = { url = "postgres://kitty:hackme@localhost:5432/kittybox" }
 
 # Release config
 [release]
+# default port is 8000
 port = 8080
 
 [release.databases]

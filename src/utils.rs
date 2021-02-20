@@ -1,5 +1,6 @@
 // Standard
 use std::collections::{HashMap, HashSet};
+use std::convert::TryInto;
 use std::env;
 use std::fs;
 // Third Party
@@ -94,20 +95,15 @@ pub fn get_free_index<T>(map: &HashMap<usize, T>) -> usize {
     index
 }
 
-pub fn generate_users() -> UserMap {
-    let mut map = HashMap::<ID, User>::new();
+pub fn generate_users() -> Vec<User> {
     // Reading file with users
     let users_raw = fs::read_to_string("./data/users.json")
         .expect("You must provide json file with a list of users!");
     // Parsing array of users
     let mut users_arr: Vec<User> = serde_json::from_str(&users_raw)
         .expect("JSON must be a list of User(s)!");
-
-    for i in 0..users_arr.len() {
-        users_arr[i].id = i;
-        map.insert(i, users_arr[i].clone());
-    }
-    UserMap::new(map)
+    // return
+    users_arr
 }
 
 pub fn get_login_storage() -> LoginMap {
