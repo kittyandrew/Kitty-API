@@ -52,6 +52,14 @@ if (( $user_id > 1000 )); then
     echo -e FATAL ERROR: value is too large - $user_id;
 fi
 
-
 curl "http://0.0.0.0:8000/api/users/?page=0"
 curl "http://0.0.0.0:8000/api/users/?page=2"
+
+resp=$(curl -s -H "X-PAGE-SIZE: 2" "http://0.0.0.0:8000/api/users/?page=0")
+page_size=$(echo $resp | jq .page_size)
+echo -e
+if (( $page_size != 2)); then
+    echo -e X-PAGE-SIZE header didn\'t work! Expected 2, got $page_size.
+else
+    echo -e X-PAGE-SIZE header assertion succeed!
+fi
