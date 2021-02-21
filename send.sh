@@ -8,12 +8,18 @@ echo $resp
 user_id=$(echo $resp | jq .user_id)
 
 # Error
+echo -e
+echo -e "Expecting error:"
 curl http://0.0.0.0:8000/api/users/99999
+echo -e
 
 curl http://0.0.0.0:8000/api/users/$user_id
 
 # Error
+echo -e
+echo -e "Expecting error:"
 curl -X DELETE http://0.0.0.0:8000/api/users/99999
+echo -e
 
 curl -X DELETE http://0.0.0.0:8000/api/users/$user_id
 

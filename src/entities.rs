@@ -14,8 +14,10 @@ pub type LoginMap = Mutex<HashMap<String, Profile>>;
 // Cache for all existing emails
 pub type LoginCache = Mutex<HashSet<String>>;
 
+
 #[database("kittybox")]
 pub struct KittyBox(postgres::Client);
+
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct User {
@@ -30,6 +32,7 @@ pub struct User {
     pub picture: String,
 }
 
+
 impl User {
     pub fn from_row(row: &postgres::Row) -> User {
         let id: i32 = row.get("id");
@@ -43,6 +46,13 @@ impl User {
             age:        age as u32,  // Explicit conversion
             active:     row.get("active"),
             picture:    row.get("picture"),
+        }
+    }
+
+    pub fn from_id(c: &mut postgres::Client, id: ID) -> Result<User, postgres::Error> {
+        match c.query_one("SELECT * FROM users WHERE id = $1", &[&(id as i32)]) {
+            Ok(row) => Ok(User::from_row(&row)),
+            Err(e) => Err(e),
         }
     }
 
@@ -97,17 +107,20 @@ impl User {
     }
 }
 
+
 pub struct Profile {
     pub login: String,
     pub password: String,
     pub session: String,
 }
 
+
 #[derive(Deserialize)]
 pub struct Data {
     pub email: String,
     pub password: String,
 }
+
 
 // Context container, useful for configurations
 #[derive(Serialize)]
@@ -116,6 +129,7 @@ pub struct Context {
     pub messages: HashMap<String, String>,
     pub docs_url: String,
 }
+
 
 impl Context {
     pub fn get_message(&self, code: &str) -> &str {

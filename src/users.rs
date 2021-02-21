@@ -51,41 +51,40 @@ pub async fn create_new_user(user: Json<User>, conn: KittyBox) -> JsonValue {
 
 #[get("/<id>")]
 pub async fn get_user_by_index(id: ID, conn: KittyBox) -> JsonValue {
-    let row = conn.run(
-        move |c| c.query_one("SELECT * FROM users WHERE id = $1", &[&(id as i32)])
-    ).await;
-
-    match row {
-        Ok(r) => json!({
-            "msg_code": "no_info",
-            "user_id": id,
-            "data": User::from_row(&r),
-        }),
-        Err(_) => json!({
-            "msg_code": "err_user_not_exist",
-            "user_id": id,
-            // "message": ,
-        }),
-    }
+    conn.run(
+        move |c| {
+            if let Ok(user) = User::from_id(c, id) {
+                json!({
+                    "msg_code": "no_info",
+                    "user_id": &user.id,
+                    "data": &user,
+                })
+            } else {
+                json!({
+                    "msg_code": "err_user_not_exist",
+                    "user_id": &id,
+                    // "message": ,
+                })
+            }
+        }
+    ).await
 }
 
 
 #[delete("/<id>")]
 pub async fn remove_user_by_index(id: ID, conn: KittyBox) -> JsonValue {
-    let row = conn.run(
+    match conn.run(
         move |c| c.query_one("DELETE FROM users WHERE id = $1 RETURNING *", &[&(id as i32)])
-    ).await;
-
-    match row {
-        Ok(r) => json!({
+    ).await {
+        Ok(row) => json!({
             "msg_code": "info_remove_user_ok",
             // "message": ,
-            "data": User::from_row(&r),
+            "data": User::from_row(&row),
         }),
         Err(_) => json!({
             "msg_code": "err_user_not_exist",
-            "user_id": id,
             // "message": ,
+            "user_id": id,
         }),
     }
 }
