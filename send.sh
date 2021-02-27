@@ -27,15 +27,17 @@ function code () {
 
 DIV="------------------------------------------"
 
+resp=$(curl -so /dev/null -w "%{http_code}\n" http://0.0.0.0:8000)
+if [[ $resp != 200 ]]; then
+    err Couldn\'t connect, you might have forgotten to start the service!
+fi
+
 echo -e
 echo -e $DIV
 echo -e "\tUsers:"
 echo -e $DIV
 
 resp=$(curl -s http://0.0.0.0:8000/api/users)
-if [ -z $resp ]; then
-    err Couldn\'t connect, you might have forgotten to start the service!
-fi
 code $resp "no_message" 13
 
 resp=$(curl -s -X DELETE http://0.0.0.0:8000/api/users)

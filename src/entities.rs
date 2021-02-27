@@ -1,6 +1,5 @@
 use rocket_contrib::json::{Json, JsonValue};
 use std::collections::{HashMap, HashSet};
-use dynfmt::{Format, SimpleCurlyFormat};
 use rocket_contrib::databases::postgres;
 use serde::{Serialize, Deserialize};
 use data_item::{DataItem, KittyBox};
@@ -70,20 +69,6 @@ pub struct Data {
 #[derive(Serialize)]
 pub struct Context {
     pub page_size: usize,
-    pub messages: HashMap<String, String>,
     pub docs_url: String,
-}
-
-
-impl Context {
-    pub fn get_message(&self, code: &str) -> &str {
-        // TODO: implement translations later
-        self.messages.get(code).expect("You done oof-ed with the error messages!").as_str()
-    }
-
-    pub fn format_str(&self, code: &str, args: &Vec<&str>) -> String {
-        let message = self.get_message(&code);
-        SimpleCurlyFormat.format(message, args).expect("FUCK YOU rust, and rust devs").into_owned()
-    }
 }
 

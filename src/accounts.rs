@@ -3,12 +3,8 @@ use chrono::prelude::Utc;
 use rocket::State;
 use blake3::hash;
 // Own code
-use crate::entities::{
-    LoginMap, LoginCache, Data, Profile, Context,
-};
-use crate::utils::{
-    new_session, reg_data_has_error, login_data_has_error
-};
+use crate::utils::{new_session, reg_data_has_error, login_data_has_error};
+use crate::entities::{LoginMap, LoginCache, Data, Profile};
 
 
 // Accounts section
@@ -17,9 +13,9 @@ use crate::utils::{
 
 // Handling basic POST request with JSON data
 #[post("/register", format = "application/json", data = "<data>")]
-pub fn account_register(data: Json<Data>, login_map: State<LoginMap>, login_cache: State<LoginCache>, context: State<Context>) -> JsonValue {
+pub fn account_register(data: Json<Data>, login_map: State<LoginMap>, login_cache: State<LoginCache>) -> JsonValue {
     // Handle early returns
-    if let Some(error) = reg_data_has_error(&data, &login_cache, &context) {
+    if let Some(error) = reg_data_has_error(&data, &login_cache) {
         return error
     }
 
@@ -37,7 +33,7 @@ pub fn account_register(data: Json<Data>, login_map: State<LoginMap>, login_cach
 
     json!({
         "msg_code": "info_reg_ok",
-        "message": context.get_message("info_reg_ok"),
+        // "message": context.get_message("info_reg_ok"),
         "data": {
             "session": session,
             "creation_date": Utc::now(),
@@ -47,8 +43,8 @@ pub fn account_register(data: Json<Data>, login_map: State<LoginMap>, login_cach
 
 
 #[post("/login", data = "<data>")]
-pub fn account_login(data: Json<Data>, login_map: State<LoginMap>, login_cache: State<LoginCache>, context: State<Context>) -> JsonValue {
-    if let Some(error) = login_data_has_error(&data, &login_cache, &context) {
+pub fn account_login(data: Json<Data>, login_map: State<LoginMap>, login_cache: State<LoginCache>) -> JsonValue {
+    if let Some(error) = login_data_has_error(&data, &login_cache) {
         return error
     } else {
         // Recreate session on each login (meaning 1 session at a time)
@@ -60,14 +56,14 @@ pub fn account_login(data: Json<Data>, login_map: State<LoginMap>, login_cache: 
             Some(val) => val,
             None => return json!({
                 "msg_code": "err_bad_credentials",
-                "message": context.get_message("err_bad_credentials")
+                // "message": context.get_message("err_bad_credentials")
             }),
         };
         profile.session = session.clone();
 
         json!({
             "msg_code": "info_login_ok",
-            "message": context.get_message("info_login_ok"),
+            // "message": context.get_message("info_login_ok"),
             "data": {
                 "session": session,
                 "creation_date": Utc::now(),

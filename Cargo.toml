@@ -2,7 +2,7 @@
 
 [package]
 name = "kitty-api"
-version = "0.0.41"
+version = "0.0.42"
 authors = ["kittyandrew <kitty@maudrew.dev>"]
 edition = "2018"
 
@@ -16,6 +16,5 @@ serde_json = "1.0"
 blake3 = "0.3.7"
 chrono = { version = "0.4", features = ["serde"] }
 rand = "0.7.3"
-dynfmt = { version = "0.1.4", features = ["curly"] }
 data_item = { path = "./data_item" }
 data_item_derive = { path = "./data_item_derive" }

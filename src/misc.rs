@@ -19,10 +19,10 @@ pub fn get_index(context: State<Context>) -> Template {
 
 // This is AWFUL. MY GOD Rocket WHY
 #[get("/")]
-pub fn catch_not_auth(context: State<Context>) -> JsonValue {
+pub fn catch_not_auth() -> JsonValue {
     json!({
         "msg_code": "err_access_denied",
-        "message": context.get_message("err_access_denied")
+        // "message": context.get_message("err_access_denied")
     })
 }
 
