@@ -1,0 +1,21 @@
+[{
+    "name": "Shadow",
+    "breed": "European Shorthair",
+    "age": 4,
+    "weight": 5120,
+    "picture": ""
+},
+{
+    "name": "Misty",
+    "breed": "Persian",
+    "age": 2,
+    "weight": 3700,
+    "picture": ""
+},
+{
+    "name": "Blep",
+    "breed": "Tiger",
+    "age": 5,
+    "weight": 4500,
+    "picture": ""
+}]
