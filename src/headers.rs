@@ -4,7 +4,7 @@ use serde::{Serialize};
 
 
 #[derive(Debug, Serialize, Clone)]
-pub struct PageSize(pub usize);
+pub struct PageSize(pub u32);
 
 
 #[derive(Debug)]
@@ -19,7 +19,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for PageSize {
 
     async fn from_request(req: &'a Request<'r>) -> Outcome<Self, Self::Error> {
         match req.headers().get_one("X-PAGE-SIZE") {
-            Some(v) => match v.parse::<usize>() {
+            Some(v) => match v.parse::<u32>() {
                 Ok(page_size) => match page_size {
                     // Forbid 0 page size
                     n if n > 0 => Outcome::Success(PageSize(n)),

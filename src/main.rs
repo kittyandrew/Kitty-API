@@ -1,9 +1,11 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 #[macro_use] extern crate rocket;
 #[macro_use] extern crate rocket_contrib;
+#[macro_use] extern crate data_item_derive;
 use rocket::tokio::time::{delay_for, Duration};
 use rocket_contrib::templates::Template;
 use rocket_contrib::serve::StaticFiles;
+use data_item::{KittyBox, DataItem};
 use rocket::http::uri::Origin;
 use rocket::fairing::AdHoc;
 use rocket::http::Method;
@@ -11,34 +13,28 @@ use std::env;
 
 
 // Own code
-mod entities;
-mod utils;
-mod users;
-mod accounts;
-mod misc;
 mod preparation;
+mod entities;
+mod accounts;
 mod headers;
+mod utils;
+mod misc;
+// mod users;
+// mod cats;
 
 
 #[launch]
 fn rocket() -> rocket::Rocket {
     // Generate data
-    preparation::generate_data();
+    preparation::load_data();
 
     rocket::ignite()
         // Home page
         .mount("/", routes![misc::get_index])
         // API routes
-        .mount("/api/users", routes![
-            users::get_all_users,
-            users::remove_all_users,
-            users::create_new_user,
-            users::get_user_by_index,
-            users::remove_user_by_index,
-            users::create_new_user_by_index,
-            users::put_user_by_index,
-            users::get_users_paginated,
-        ])
+        .mount("/api/users", entities::User::get_api_endpoints())
+        .mount("/api/cats", entities::Cat::get_api_endpoints())
+        .mount("/api/textcats", entities::TextCat::get_api_endpoints())
         .mount("/api/accounts", routes![
             accounts::account_register,
             accounts::account_login,
@@ -104,7 +100,7 @@ fn rocket() -> rocket::Rocket {
         // All-catchers
         .register(catchers![misc::not_found])
         // Databases
-        .attach(entities::KittyBox::fairing())
+        .attach(KittyBox::fairing())
         // "local" vars
         .manage(utils::get_login_storage())
         .manage(utils::get_login_cache())

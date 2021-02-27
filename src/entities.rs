@@ -1,28 +1,24 @@
+use rocket_contrib::json::{Json, JsonValue};
 use std::collections::{HashMap, HashSet};
-use rocket_contrib::databases::postgres;
-// -- "FUCK YOU rust, and rust devs" section --
 use dynfmt::{Format, SimpleCurlyFormat};
-// -- end of section --
+use rocket_contrib::databases::postgres;
 use serde::{Serialize, Deserialize};
+use data_item::{DataItem, KittyBox};
+use crate::headers::PageSize;
 use std::sync::Mutex;
+use rocket::Route;
 
 
-// The type to represent id of a user.
-pub type ID = u32;
 // Storage for all profiles
 pub type LoginMap = Mutex<HashMap<String, Profile>>;
 // Cache for all existing emails
 pub type LoginCache = Mutex<HashSet<String>>;
 
 
-#[database("kittybox")]
-pub struct KittyBox(postgres::Client);
-
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, DataItem)]
 pub struct User {
     #[serde(skip_deserializing)]
-    pub id: ID,
+    pub id: u32,
     pub username: String,
     pub first_name: String,
     pub last_name: String,
@@ -33,78 +29,26 @@ pub struct User {
 }
 
 
-impl User {
-    pub fn from_row(row: &postgres::Row) -> User {
-        let id: i32 = row.get("id");
-        let age: i32 = row.get("age");
-        User {
-            id:         id as u32,  // Explicit conversion
-            username:   row.get("username"),
-            first_name: row.get("first_name"),
-            last_name:  row.get("last_name"),
-            email:      row.get("email"),
-            age:        age as u32,  // Explicit conversion
-            active:     row.get("active"),
-            picture:    row.get("picture"),
-        }
-    }
+#[derive(Serialize, Deserialize, Clone, Debug, DataItem)]
+pub struct Cat {
+    #[serde(skip_deserializing)]
+    pub id: u32,
+    pub name: String,
+    pub breed: String,
+    pub age: u32,
+    // SI units: grams
+    pub weight: u32,
+    pub picture: String,
+}
 
-    pub fn from_id(c: &mut postgres::Client, id: ID) -> Result<User, postgres::Error> {
-        match c.query_one("SELECT * FROM users WHERE id = $1", &[&(id as i32)]) {
-            Ok(row) => Ok(User::from_row(&row)),
-            Err(e) => Err(e),
-        }
-    }
 
-    // Insert and auto-assign (auto-increment) id
-    pub fn insert(&self, c: &mut postgres::Client) -> i32 {
-        c.query_one(
-            "INSERT INTO users \
-             (username, first_name, last_name, email, age, active, picture) \
-             VALUES ($1, $2, $3, $4, $5, $6, $7) \
-             RETURNING id",
-            &[
-                &self.username, &self.first_name, &self.last_name,
-                &self.email, &(self.age as i32), &self.active, &self.picture,
-            ],
-        ).unwrap().get("id")
-    }
-
-    // Insert with certain id
-    pub fn insert_with_id(&self, c: &mut postgres::Client) -> Result<i32, postgres::Error> {
-        //     @: We insert into all columns so can remove this
-        //     (id, username, first_name, last_name, email, age, active, picture) \
-        match c.query_one(
-            "INSERT INTO users \
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8) \
-             RETURNING id",
-            &[
-                &(self.id as i32), &self.username, &self.first_name, &self.last_name,
-                &self.email, &(self.age as i32), &self.active, &self.picture,
-            ],
-        ) {
-            Ok(item) => Ok(item.get("id")),
-            Err(e) => Err(e),
-        }
-    }
-
-    // Insert or update, depending whether id exists
-    pub fn put(&self, c: &mut postgres::Client) -> i32 {
-        c.query_one(
-            "INSERT INTO users \
-             (id, username, first_name, last_name, email, age, active, picture) \
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8) \
-             ON CONFLICT (id) DO UPDATE SET \
-             username = EXCLUDED.username, first_name = EXCLUDED.first_name, \
-             last_name = EXCLUDED.last_name, email = EXCLUDED.email, \
-             age = EXCLUDED.age, active = EXCLUDED.active, picture = EXCLUDED.picture \
-             RETURNING id",
-            &[
-                &(self.id as i32), &self.username, &self.first_name, &self.last_name,
-                &self.email, &(self.age as i32), &self.active, &self.picture,
-            ],
-        ).unwrap().get("id")
-    }
+#[derive(Serialize, Deserialize, Clone, Debug, DataItem)]
+pub struct TextCat {
+    #[serde(skip_deserializing)]
+    pub id: u32,
+    pub text: String,
+    pub is_ascii: bool,
+    pub length: u32,
 }
 
 

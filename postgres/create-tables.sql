@@ -8,3 +8,19 @@ CREATE TABLE users (
   active BOOLEAN NOT NULL,
   picture TEXT NOT NULL
 );
+
+CREATE TABLE cats (
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
+  breed TEXT NOT NULL,
+  age INTEGER NOT NULL,
+  weight INTEGER NOT NULL,
+  picture TEXT NOT NULL
+);
+
+CREATE TABLE textcats (
+  id SERIAL PRIMARY KEY,
+  text TEXT NOT NULL,
+  is_ascii BOOLEAN NOT NULL,
+  length INTEGER NOT NULL
+);

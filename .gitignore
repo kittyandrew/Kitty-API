@@ -1,5 +1,6 @@
-/target
+target
 cats.json
 .env
 *.swp
 .databases
+*.py

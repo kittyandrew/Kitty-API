@@ -2,12 +2,11 @@ use rocket_contrib::json::{Json, JsonValue};
 use std::collections::{HashMap, HashSet};
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
+use std::{env, fs};
 use rocket::State;
-use std::env;
-use std::fs;
 // Own code
 use crate::entities::{
-    User, Context, LoginCache, Data, LoginMap, Profile,
+    Context, LoginCache, Data, LoginMap, Profile,
 };
 
 
@@ -76,16 +75,6 @@ pub fn login_data_has_error(data: &Json<Data>, login_cache: &State<LoginCache>, 
         // No err
         _ => None,
     }
-}
-
-
-pub fn generate_users() -> Vec<User> {
-    // Reading file with users
-    let users_raw = fs::read_to_string("./data/users.json")
-        .expect("You must provide json file with a list of users!");
-    // Parsing array of users
-    serde_json::from_str(&users_raw)
-        .expect("JSON must be a list of User(s)!")
 }
 
 

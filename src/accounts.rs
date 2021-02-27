@@ -10,8 +10,10 @@ use crate::utils::{
     new_session, reg_data_has_error, login_data_has_error
 };
 
+
 // Accounts section
 // TODO: Rewrite this section
+
 
 // Handling basic POST request with JSON data
 #[post("/register", format = "application/json", data = "<data>")]
@@ -42,6 +44,7 @@ pub fn account_register(data: Json<Data>, login_map: State<LoginMap>, login_cach
         }
     })
 }
+
 
 #[post("/login", data = "<data>")]
 pub fn account_login(data: Json<Data>, login_map: State<LoginMap>, login_cache: State<LoginCache>, context: State<Context>) -> JsonValue {

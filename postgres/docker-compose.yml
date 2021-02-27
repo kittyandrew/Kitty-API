@@ -4,7 +4,7 @@ services:
     container_name: kitty-api-db
     image: kitty-api-db
     restart: always
-    build: postgres
+    build: .
     environment:
       - POSTGRES_USER=kitty
       - POSTGRES_PASSWORD=hackme

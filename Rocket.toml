@@ -2,7 +2,7 @@
 address = "0.0.0.0"
 template_dir = "templates/"
 
-[global.databases]
+[default.databases]
 kittybox = { url = "postgres://kitty:hackme@localhost:5432/kittybox" }
 
 # Release config
