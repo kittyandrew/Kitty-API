@@ -11,6 +11,10 @@ RUN USER=root cargo new kitty-api
 COPY src src
 COPY Cargo.toml .
 COPY Cargo.lock .
+# Copying modules
+COPY data_item data_item
+COPY data_item_derive data_item_derive
+# Build command
 RUN cargo install --locked --target x86_64-unknown-linux-musl --path .
 
 FROM scratch
@@ -19,9 +23,6 @@ COPY --from=builder /usr/local/cargo/bin/kitty-api .
 COPY data data
 COPY static static
 COPY templates templates
-# Copying modules
-COPY data_item data_item
-COPY data_item_derive data_item_derive
 # Copying config file for prod
 COPY Rocket.toml .
 USER 1000
