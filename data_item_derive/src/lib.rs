@@ -19,9 +19,11 @@ pub fn data_item_derive(input: TokenStream) -> TokenStream {
 fn impl_data_item(ast: &syn::DeriveInput) -> TokenStream {
     let name    = &ast.ident;
     let object  = struct_from_row(&ast.data);
+
     let table   = format!("{}s", name.to_string().to_lowercase());
     let sname   = format_ident!("{}", name.to_string().to_lowercase());
     let data_m  = format!("<{}>", sname);
+    let partial = format_ident!("{}Partial", name.to_string());
 
     let get_all_name          = format_ident!("get_all_{}", table);
     let get_name_by_index     = format_ident!("get_{}_by_index", sname);
@@ -30,6 +32,7 @@ fn impl_data_item(ast: &syn::DeriveInput) -> TokenStream {
     let create_name           = format_ident!("create_{}", sname);
     let create_name_by_index  = format_ident!("create_{}_by_index", sname);
     let put_name_by_index     = format_ident!("put_{}_by_index", sname);
+    let patch_name_by_index   = format_ident!("patch_{}_by_index", sname);
 
     let remove_all_name       = format_ident!("remove_all_{}", table);
     let remove_name_by_index  = format_ident!("remove_{}_by_index", sname);
@@ -37,15 +40,24 @@ fn impl_data_item(ast: &syn::DeriveInput) -> TokenStream {
     let handle_options_name   = format_ident!("handle_options_{}", table);
     let handle_options_name_i = format_ident!("handle_options_{}_i", table);
 
-    let (all_fields_sql, all_dollars) = generate_fields_sql(&ast.data, false);
-    let (fields_sql, dollars)         = generate_fields_sql(&ast.data, true);
+    let (all_sql, all_signs)  = generate_fields_sql(&ast.data, false);
+    let (fields_sql, signs)   = generate_fields_sql(&ast.data, true);
+    let excluded_sql          = generate_excluded_sql(&ast.data, true);
 
-    let all_fields_vec                = vector_fields_to_sql(&ast.data, false);
-    let fields_vec                    = vector_fields_to_sql(&ast.data, true);
+    let all_fields_vec        = vector_fields_to_sql(&ast.data, false);
+    let fields_vec            = vector_fields_to_sql(&ast.data, true);
 
-    let excluded_sql                  = generate_excluded_sql(&ast.data, true);
+    let partial_data_fields   = generate_partial_data_fields(&ast.data);
+    let partial_data_sql      = generate_partial_data_sql(&ast.data);
+    let (pcasts, partial_vec) = vector_fields_with_pcasts(&ast.data);
 
     let gen = quote! {
+        // Partial class
+        #[derive(Serialize, Deserialize, Clone, Debug)]
+        pub struct #partial {
+            #partial_data_fields
+        }
+
         // Endpoints
         #[get("/")]
         pub async fn #get_all_name(conn: KittyBox) -> JsonValue {
@@ -134,6 +146,24 @@ fn impl_data_item(ast: &syn::DeriveInput) -> TokenStream {
             })
         }
 
+        #[patch("/<id>", format = "application/json", data = "<item>")]
+        pub async fn #patch_name_by_index(id: u32, item: Json<#partial>, conn: KittyBox) -> JsonValue {
+            json!({
+                "msg_code": "info_item_patch_ok",
+                "item_id": &id,
+                "data": conn.run(move |c| {
+                    #pcasts
+                    #name::from_row(c.query_one(concat!(
+                            "UPDATE ", #table, " SET ", #partial_data_sql,
+                            // TODO: Do we really need to return the whole object?
+                            " WHERE id = $1 RETURNING *",
+                        ),
+                        &[&(id as i32), #partial_vec]
+                    ).as_ref().unwrap())
+                }).await,
+            })
+        }
+
         #[delete("/")]
         pub async fn #remove_all_name(conn: KittyBox) -> JsonValue {
             json!({
@@ -183,7 +213,6 @@ fn impl_data_item(ast: &syn::DeriveInput) -> TokenStream {
 
         #[async_trait]
         impl DataItem for #name {
-
             fn from_row(row: &postgres::Row) -> Self {
                 #object
             }
@@ -218,7 +247,7 @@ fn impl_data_item(ast: &syn::DeriveInput) -> TokenStream {
             fn insert(&self, c: &mut postgres::Client) -> u32 {
                 c.query_one(concat!(
                         "INSERT INTO ", #table, " (", stringify!(#fields_sql),
-                        ")", "VALUES (", #dollars, ") RETURNING id"
+                        ")", "VALUES (", #signs, ") RETURNING id"
                     ),
                     #fields_vec
                 ).expect("Failed to insert item!").get::<_, i32>("id") as u32
@@ -226,8 +255,8 @@ fn impl_data_item(ast: &syn::DeriveInput) -> TokenStream {
 
             fn insert_with_id(&self, c: &mut postgres::Client) -> Result<u32, postgres::Error> {
                 match c.query_one(concat!(
-                        "INSERT INTO ", #table, " (", stringify!(#all_fields_sql),
-                        ")", "VALUES (", #all_dollars, ") RETURNING id"
+                        "INSERT INTO ", #table, " (", stringify!(#all_sql),
+                        ")", "VALUES (", #all_signs, ") RETURNING id"
                     ),
                     #all_fields_vec
                 ) {
@@ -238,8 +267,8 @@ fn impl_data_item(ast: &syn::DeriveInput) -> TokenStream {
 
             fn put(&self, c: &mut postgres::Client) -> u32 {
                 c.query_one(concat!(
-                        "INSERT INTO ", #table, " (", stringify!(#all_fields_sql), ")",
-                        "VALUES (", #all_dollars, ") ON CONFLICT (id) DO UPDATE SET ",
+                        "INSERT INTO ", #table, " (", stringify!(#all_sql), ")",
+                        "VALUES (", #all_signs, ") ON CONFLICT (id) DO UPDATE SET ",
                         stringify!(#excluded_sql), " RETURNING id"
                     ),
                     #all_fields_vec
@@ -276,6 +305,7 @@ fn impl_data_item(ast: &syn::DeriveInput) -> TokenStream {
                     #create_name,
                     #create_name_by_index,
                     #put_name_by_index,
+                    #patch_name_by_index,
 
                     #remove_all_name,
                     #remove_name_by_index,
@@ -415,6 +445,113 @@ fn generate_excluded_sql(data: &Data, count_id: bool) -> proc_macro2::TokenStrea
                     });
 
                     quote! { #(#field_values),* }
+                }
+                Fields::Unnamed(_) | Fields::Unit => unimplemented!(),
+            }
+        }
+        Data::Enum(_) | Data::Union(_) => unimplemented!(),
+    }
+}
+
+
+fn generate_partial_data_fields(data: &Data) -> proc_macro2::TokenStream {
+    let id = "id".to_string();
+
+    match *data {
+        Data::Struct(ref data) => {
+            match data.fields {
+                Fields::Named(ref fields) => {
+                    let field_values = fields.named.iter().filter(|&item| &item.ident.as_ref().unwrap().to_string() != &id).map(|f| {
+                        let name = &f.ident;
+                        let ty = &f.ty;
+                        match ty {
+                            Type::Path(ref p) => quote! { pub #name: Option<#p> },
+                            _                 => unimplemented!(),
+                        }
+                    });
+                    quote! { #(#field_values,)* }
+                }
+                Fields::Unnamed(_) | Fields::Unit => unimplemented!(),
+            }
+        }
+        Data::Enum(_) | Data::Union(_) => unimplemented!(),
+    }
+}
+
+
+fn generate_partial_data_sql(data: &Data) -> String {
+    let id = "id".to_string();
+
+    match *data {
+        Data::Struct(ref data) => {
+            match data.fields {
+                Fields::Named(ref fields) => {
+                    let mut i = 2;
+                    let stuff_iter: Vec<String> = fields.named.iter().filter(|&item| &item.ident.as_ref().unwrap().to_string() != &id).map(|f| {
+                        let name = &f.ident;
+                        let fname = name.as_ref().unwrap().to_string();
+                        let result = format!("{} = COALESCE(${}, {})", &fname, i, &fname);
+                        i += 1;
+                        result
+                    }).collect();
+                    stuff_iter.join(", ")                    
+                }
+                Fields::Unnamed(_) | Fields::Unit => unimplemented!(),
+            }
+        }
+        Data::Enum(_) | Data::Union(_) => unimplemented!(),
+    }
+}
+
+
+fn vector_fields_with_pcasts(data: &Data) -> (proc_macro2::TokenStream, proc_macro2::TokenStream) {
+    let id = "id".to_string();
+
+    match *data {
+        Data::Struct(ref data) => {
+            match data.fields {
+                Fields::Named(ref fields) => {
+                    let mut casts: Vec<proc_macro2::TokenStream> = Vec::new();
+                    let mut field_vec: Vec<proc_macro2::TokenStream> = Vec::new();
+                    for f in fields.named.iter().filter(|&item| &item.ident.as_ref().unwrap().to_string() != &id) {
+                        let name = &f.ident;
+                        let fname = format_ident!("field_{}", &name.as_ref().unwrap().to_string());
+                        let ty = &f.ty;
+                        let item = format_ident!("item");
+                        match ty {
+                            Type::Path(ref p) => {
+                                match &p.path {
+                                    path if path.is_ident("String") => field_vec.push(quote! { &#item.#name }),
+                                    path if path.is_ident("bool")   => field_vec.push(quote! { &#item.#name }),
+                                    path if path.is_ident("i32")    => field_vec.push(quote! { &#item.#name }),
+                                    path if path.is_ident("i64")    => field_vec.push(quote! { &#item.#name }),
+                                    path if path.is_ident("f32")    => field_vec.push(quote! { &#item.#name }),
+                                    path if path.is_ident("f64")    => field_vec.push(quote! { &#item.#name }),
+                                    path if path.is_ident("u32")    => {
+                                        casts.push(quote! {
+                                            let #fname = match #item.#name {
+                                                Some(v) => Some(v as i32),
+                                                None    => None,
+                                            };
+                                        });
+                                        field_vec.push(quote! { &#fname });
+                                    }
+                                    path if path.is_ident("u64")    => {
+                                        casts.push(quote! {
+                                            let #fname = match #item.#name {
+                                                Some(v) => Some(v as i32),
+                                                None    => None,
+                                            };
+                                        });
+                                        field_vec.push(quote! { &#fname });
+                                    }
+                                    _ => unimplemented!(),
+                                };
+                            },
+                            _ => unimplemented!(),
+                        };
+                    };
+                    (quote! { #(#casts)* }, quote! { #(#field_vec, )* })
                 }
                 Fields::Unnamed(_) | Fields::Unit => unimplemented!(),
             }
