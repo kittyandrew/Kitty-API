@@ -148,20 +148,27 @@ fn impl_data_item(ast: &syn::DeriveInput) -> TokenStream {
 
         #[patch("/<id>", format = "application/json", data = "<item>")]
         pub async fn #patch_name_by_index(id: u32, item: Json<#partial>, conn: KittyBox) -> JsonValue {
-            json!({
-                "msg_code": "info_item_patch_ok",
-                "item_id": &id,
-                "data": conn.run(move |c| {
-                    #pcasts
-                    #name::from_row(c.query_one(concat!(
-                            "UPDATE ", #table, " SET ", #partial_data_sql,
-                            // TODO: Do we really need to return the whole object?
-                            " WHERE id = $1 RETURNING *",
-                        ),
-                        &[&(id as i32), #partial_vec]
-                    ).as_ref().unwrap())
-                }).await,
-            })
+            conn.run(move |c| {
+                #pcasts
+                match c.query_one(concat!(
+                        "UPDATE ", #table, " SET ", #partial_data_sql,
+                        // TODO: Do we really need to return the whole object?
+                        " WHERE id = $1 RETURNING *",
+                    ),
+                    &[&(id as i32), #partial_vec]
+                ) {
+                    Ok(row) => json!({
+                        "msg_code": "info_patch_item_ok",
+                        // "message": ,
+                        "data": #name::from_row(&row),
+                    }),
+                    Err(_) => json!({
+                        "msg_code": "err_item_not_exist",
+                        // "message": ,
+                        "item_id": id,
+                    })
+                }
+            }).await
         }
 
         #[delete("/")]

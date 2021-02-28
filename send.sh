@@ -89,7 +89,7 @@ if [[ $active_1 != "false" ]]; then
     echo -e "FAILED: $active_1 was supposed to be \"false\""
     exit 1
 fi
-code "$resp" "info_item_patch_ok"
+code "$resp" "info_patch_item_ok"
 
 resp=$(curl -sX PATCH -d '{"active": true}' -H "Content-Type: application/json" http://0.0.0.0:8000/api/users/99)
 active_2=$(echo "$resp" | jq ".data.active")
@@ -97,7 +97,10 @@ if [[ $active_2 != "true" ]]; then
     echo -e "FAILED: $active_2 was supposed to be \"true\""
     exit 1
 fi
-code "$resp" "info_item_patch_ok"
+code "$resp" "info_patch_item_ok"
+
+resp=$(curl -sX PATCH -d '{"first_name": "TEST 1", "active": false}' -H "Content-Type: application/json" http://0.0.0.0:8000/api/users/124214)
+code "$resp" "err_item_not_exist"
 
 resp=$(curl -s -X POST -d '{"username": "A", "first_name": "B", "last_name": "C", "email": "D", "age": 14, "active": true, "picture": "Z"}' -H "Content-Type: application/json" http://0.0.0.0:8000/api/users)
 code "$resp" "info_new_item_ok"
