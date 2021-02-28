@@ -34,6 +34,9 @@ fn impl_data_item(ast: &syn::DeriveInput) -> TokenStream {
     let remove_all_name       = format_ident!("remove_all_{}", table);
     let remove_name_by_index  = format_ident!("remove_{}_by_index", sname);
 
+    let handle_options_name   = format_ident!("handle_options_{}", table);
+    let handle_options_name_i = format_ident!("handle_options_{}_i", table);
+
     let (all_fields_sql, all_dollars) = generate_fields_sql(&ast.data, false);
     let (fields_sql, dollars)         = generate_fields_sql(&ast.data, true);
 
@@ -158,6 +161,26 @@ fn impl_data_item(ast: &syn::DeriveInput) -> TokenStream {
             }
         }
 
+        #[options("/")]
+        pub async fn #handle_options_name() -> Response<'static> {
+            Response::build()
+                .status(Status::Ok)
+                .header(Header::new(ACCEPT.as_str(), "application/json"))
+                // TODO: we don't have PUT for users, what should it do, if anything?
+                .raw_header("Allow", "GET, POST, DELETE, HEAD")
+                .finalize()
+        }
+
+        #[options("/<id>")]
+        pub async fn #handle_options_name_i(id: u32) -> Response<'static> {
+            Response::build()
+                .status(Status::Ok)
+                .header(Header::new(ACCEPT.as_str(), "application/json"))
+                .raw_header("Allow", "GET, POST, PUT, DELETE, HEAD")
+                .finalize()
+        }
+
+
         #[async_trait]
         impl DataItem for #name {
 
@@ -256,6 +279,9 @@ fn impl_data_item(ast: &syn::DeriveInput) -> TokenStream {
 
                     #remove_all_name,
                     #remove_name_by_index,
+
+                    #handle_options_name,
+                    #handle_options_name_i,
                 ]
             }
         }

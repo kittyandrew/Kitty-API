@@ -113,6 +113,28 @@ echo -e $DIV
 resp=$(curl -s http://0.0.0.0:8000/api/cats)
 code "$resp" "no_message" 3
 
+echo -e
+resp=$(curl -sI http://0.0.0.0:8000/api/cats)
+if [ -z "$resp" ]; then
+    echo HEAD request failed! Response: $resp
+else
+    echo HEAD request succeed!
+fi
+
+echo -e
+resp=$(curl -sIX OPTIONS http://0.0.0.0:8000/api/cats)
+if [ -z "$resp" ]; then
+    echo -e OPTIONS request failed! Response: "$resp"
+else
+    echo -e OPTIONS request succeed! /\\t$(echo "$resp" | grep "allow")
+fi
+resp=$(curl -sIX OPTIONS http://0.0.0.0:8000/api/cats/1)
+if [ -z "$resp" ]; then
+    echo -e OPTIONS request failed! Response: "$resp"
+else
+    echo -e OPTIONS request succeed! /\<id\>\\t$(echo "$resp" | grep "allow")
+fi
+
 echo -e 
 echo -e $DIV
 echo -e "\tTextCats:"

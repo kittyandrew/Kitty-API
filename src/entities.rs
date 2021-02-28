@@ -1,11 +1,11 @@
-use rocket_contrib::json::{Json, JsonValue};
+use rocket_contrib::{databases::postgres, json::{Json, JsonValue}};
+use rocket::http::{Header, Status, hyper::header::ACCEPT};
 use std::collections::{HashMap, HashSet};
-use rocket_contrib::databases::postgres;
 use serde::{Serialize, Deserialize};
 use data_item::{DataItem, KittyBox};
+use rocket::{Route, Response};
 use crate::headers::PageSize;
 use std::sync::Mutex;
-use rocket::Route;
 
 
 // Storage for all profiles
