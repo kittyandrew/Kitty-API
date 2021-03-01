@@ -6,8 +6,6 @@ use crate::entities::Context;
 
 
 // Home page
-
-
 #[get("/")]
 pub fn get_index(context: State<Context>) -> Template {
     Template::render("index", &context.inner())
@@ -15,26 +13,21 @@ pub fn get_index(context: State<Context>) -> Template {
 
 
 // Catch Errors
-
-
-// This is AWFUL. MY GOD Rocket WHY
 #[get("/")]
 pub fn catch_not_auth() -> JsonValue {
     json!({
         "msg_code": "err_access_denied",
-        // "message": context.get_message("err_access_denied")
+        "message": "Access denied! Authorization token is wrong or missing.",
     })
 }
 
 
 // 404 page
-
-
 #[catch(404)]
 pub fn not_found() -> JsonValue {
     json!({
         "msg_code": "err_res_not_found",
-        // TODO: broken. "message": context.get_message("err_res_not_found")
+        "message": "Resource not found! Make you sure your request path and data are correct.",
     })
 }
 

@@ -19,13 +19,17 @@ function code () {
         #if [[ $3 != $count ]]; then
         #    err Failed: length doesn\'t match, expected $3, got $1 items!
         #fi
-        echo -e "Good:\t$msg\t\tCount: $count"
+        echo -e "Good:\t$msg\t\tAmount of items: $count"
         return
     fi
-    echo -e "Good:\t$msg"
+    text=$(echo "$1" | jq .message)
+    if [[ "$text" == "null" ]]; then
+        text=""
+    fi
+    echo -e "Good:\t$msg\t$text"
 }
 
-DIV="------------------------------------------"
+DIV="---------------------------------------------------------------------"
 
 resp=$(curl -so /dev/null -w "%{http_code}\n" http://0.0.0.0:8000)
 if [[ $resp != 200 ]]; then

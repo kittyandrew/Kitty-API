@@ -74,13 +74,12 @@ fn impl_data_item(ast: &syn::DeriveInput) -> TokenStream {
                     if let Ok(#sname) = #name::from_id(c, id) {
                         json!({
                             "msg_code": "no_message",
-                            "item_id": &#sname.id,
                             "data": &#sname,
                         })
                     } else {
                         json!({
                             "msg_code": "err_item_not_exist",
-                            // "message": ,
+                            "message": format!(concat!(stringify!(#name), " with ID '{}' does not exist!"), &id),
                             "item_id": &id,
                         })
                     }
@@ -104,7 +103,7 @@ fn impl_data_item(ast: &syn::DeriveInput) -> TokenStream {
         pub async fn #create_name(#sname: Json<#name>, conn: KittyBox) -> JsonValue {
             json!({
                 "msg_code": "info_new_item_ok",
-                // "message": context.get_message("info_new_item_ok"),
+                "message": concat!("Successfully created new ", stringify!(#sname), "!"),
                 "item_id": conn.run(|c| #sname.into_inner().insert(c)).await,
             })
         }
@@ -119,13 +118,13 @@ fn impl_data_item(ast: &syn::DeriveInput) -> TokenStream {
                     if let Ok(_) = #sname.insert_with_id(c) {
                         json!({
                             "msg_code": "info_new_item_ok",
-                            // "message": ,
+                            "message": concat!("Successfully created new ", stringify!(#sname), "!"),
                             "item_id": &#sname.id,
                         })
                     } else {
                         json!({
                             "msg_code": "err_item_exists",
-                            // "message": ,
+                            "message": format!(concat!(stringify!(#name), " with ID '{}' already exists! Aborted."), &#sname.id),
                             "item_id": &#sname.id,
                         })
                     }
@@ -137,7 +136,7 @@ fn impl_data_item(ast: &syn::DeriveInput) -> TokenStream {
         pub async fn #put_name_by_index(id: u32, item: Json<User>, conn: KittyBox) -> JsonValue {
             json!({
                 "msg_code": "info_item_put_ok",
-                // "message": context.get_message("info_new_item_ok"),
+                "message": concat!("Successfully updated/created ", stringify!(#sname), "!"),
                 "item_id": conn.run(move |c| {
                     let mut #sname = item.into_inner();
                     #sname.id = id;
@@ -159,13 +158,13 @@ fn impl_data_item(ast: &syn::DeriveInput) -> TokenStream {
                 ) {
                     Ok(row) => json!({
                         "msg_code": "info_patch_item_ok",
-                        // "message": ,
+                        "message": concat!("Successfully modified ", stringify!(#sname), "!"),
                         "data": #name::from_row(&row),
                     }),
                     Err(_) => json!({
                         "msg_code": "err_item_not_exist",
-                        // "message": ,
-                        "item_id": id,
+                        "message": format!(concat!(stringify!(#name), " with ID '{}' does not exist!"), &id),
+                        "item_id": &id,
                     })
                 }
             }).await
@@ -175,7 +174,7 @@ fn impl_data_item(ast: &syn::DeriveInput) -> TokenStream {
         pub async fn #remove_all_name(conn: KittyBox) -> JsonValue {
             json!({
                 "msg_code": "info_items_removed",
-                // "message": context.format_usize("info_items_removed", &vec![size])
+                "message": concat!("Successfully removed all ", #table, "!"),
                 "items_removed": conn.run(|c| #name::delete_all(c)).await,
             })
         }
@@ -187,13 +186,13 @@ fn impl_data_item(ast: &syn::DeriveInput) -> TokenStream {
             ).await {
                 Ok(#sname) => json!({
                     "msg_code": "info_remove_item_ok",
-                    // "message": ,
+                    "message": concat!("Successfully removed ", stringify!(#sname), "!"),
                     "data": #sname,
                 }),
                 Err(_) => json!({
                     "msg_code": "err_item_not_exist",
-                    // "message": ,
-                    "item_id": id,
+                    "message": format!(concat!(stringify!(#name), " with ID '{}' does not exist!"), &id),
+                    "item_id": &id,
                 }),
             }
         }
@@ -204,7 +203,7 @@ fn impl_data_item(ast: &syn::DeriveInput) -> TokenStream {
                 .status(Status::Ok)
                 .header(Header::new(ACCEPT.as_str(), "application/json"))
                 // TODO: we don't have PUT for users, what should it do, if anything?
-                .raw_header("Allow", "GET, POST, DELETE, HEAD")
+                .raw_header("Allow", "GET, POST, DELETE, HEAD, OPTIONS")
                 .finalize()
         }
 
@@ -213,7 +212,7 @@ fn impl_data_item(ast: &syn::DeriveInput) -> TokenStream {
             Response::build()
                 .status(Status::Ok)
                 .header(Header::new(ACCEPT.as_str(), "application/json"))
-                .raw_header("Allow", "GET, POST, PUT, DELETE, HEAD")
+                .raw_header("Allow", "GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS")
                 .finalize()
         }
 
